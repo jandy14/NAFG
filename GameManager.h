@@ -11,8 +11,11 @@ class Object;
 
 enum STATE
 {
+	INITAILIZING,
 	WAITING,
+	SETTING,
 	GAMING,
+	GAMEOVER,
 	END
 };
 
@@ -23,18 +26,25 @@ private:
 	NetworkManager* netManager;
 	InputManager* inputManager;
 	EventManager* evtManager;
-	STATE state;
-	bool isHost;
 
 	list<Object> objectList;
 
 	GameManager();
 public:
+	STATE state;
+	bool isHost;
+	int win, lose;
+
 	static GameManager* GetInstance();
+	void Initailize();
+	void NetInit(bool isHost, char* ipAdress = "");
 	void Update();
 	void PhysicsUpdate();
 	void Draw();
-	void KeyEvent(int value);
-	void CreateConnect(char* ipAdress);
+	void KeyEvent(unsigned int value/*가상키코드*/);
+	void InputEventHandling();
+	void CollisionCheck();
+	void CollisionEventHandling();
+
 	~GameManager();
 };

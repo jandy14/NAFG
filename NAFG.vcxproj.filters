@@ -35,6 +35,9 @@
     <ClInclude Include="NetworkManager.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NAFG.rc">

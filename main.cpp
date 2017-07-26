@@ -7,9 +7,6 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;
 LPCTSTR lpszClass = TEXT("NAFG");
 
-BOOL isHost = TRUE;
-char ip[16];
-
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 	, LPSTR lpszCmdParam, int nCmdShow)
 {
@@ -43,32 +40,56 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 
 	int startTime = 0;
 	int elapsedTime = 0;
+	GameManager * gm = GameManager::GetInstance();
 	while (1)
 	{
-		startTime = timeGetTime();
-		
-		/*  메세지 처리  */
-		while (PeekMessage(&Message,NULL,0,0,PM_NOREMOVE))
+		if (gm->state == INITAILIZING)
 		{
-			GetMessage(&Message, NULL, 0, 0);
-			TranslateMessage(&Message);
-			DispatchMessage(&Message);
+
 		}
-
-		/*  게임 루프  */
-		//================================//
-		//           Game Loop            //
-		//================================//
-
-		/*  프레임 유지  */
-		elapsedTime += timeGetTime() - startTime;
-		if ((1000 / FPS) > elapsedTime)
+		else if (gm->state == WAITING)
 		{
-			Sleep((1000 / FPS) - elapsedTime);
-			elapsedTime = 0;
+
 		}
-		else //Frame Skipping
-			elapsedTime -= (1000 / FPS);
+		else if (gm->state == SETTING)
+		{
+
+		}
+		else if (gm->state == GAMING)
+		{
+			startTime = timeGetTime();
+
+			/*  메세지 처리  */
+			while (PeekMessage(&Message, NULL, 0, 0, PM_NOREMOVE))
+			{
+				GetMessage(&Message, NULL, 0, 0);
+				TranslateMessage(&Message);
+				DispatchMessage(&Message);
+			}
+
+			/*  게임 루프  */
+			gm->InputEventHandling();
+			gm->PhysicsUpdate();
+			if (gm->isHost)
+				gm->CollisionCheck();
+			gm->CollisionEventHandling();
+			gm->Update();
+			gm->Draw();
+
+			/*  프레임 유지  */
+			elapsedTime += timeGetTime() - startTime;
+			if ((1000 / FPS) > elapsedTime)
+			{
+				Sleep((1000 / FPS) - elapsedTime);
+				elapsedTime = 0;
+			}
+			else //Frame Skipping
+				elapsedTime -= (1000 / FPS);
+		}
+		else if (gm->state == GAMEOVER)
+		{
+
+		}
 	}
 
 	return (int)Message.wParam;
@@ -85,12 +106,13 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case IDHOST:
-			isHost = TRUE;
+			GameManager::GetInstance()->NetInit(true);
 			EndDialog(hDlg, 0);
 			return TRUE;
 		case IDGUEST:
-			isHost = FALSE;
-			GetDlgItemText(hDlg, IDC_IPADRESS, ip, 16);
+			char ipAdress[16];
+			GetDlgItemText(hDlg, IDC_IPADRESS, ipAdress, 16);
+			GameManager::GetInstance()->NetInit(false, ipAdress);
 			EndDialog(hDlg, 0);
 			return TRUE;
 		}
@@ -101,14 +123,18 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
-{
+{	
 	switch (iMessage)
 	{
 	case WM_CREATE:
 		//GameManager Init
+		GameManager::GetInstance()->Initailize();//게임매니저 생성및 초기화
+												 //인풋값 설정, 이벤트 리스트 초기화
 		return 0;
 	case WM_KEYDOWN:
-		//gameManager의 keyEvent()
+		GameManager* gm = GameManager::GetInstance();
+		if(gm->state == GAMING)
+			gm->KeyEvent(wParam);
 		return 0;
 	case WM_PAINT:
 		return 0;
