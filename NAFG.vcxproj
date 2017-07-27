@@ -119,9 +119,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="NetworkManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Event.h" />
+    <ClInclude Include="EventManager.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="NetworkManager.h" />

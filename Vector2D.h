@@ -3,7 +3,7 @@
 class Vector2D
 {
 private:
-	int x, y;
+	float x, y;
 public:
 
 };

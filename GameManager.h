@@ -45,6 +45,7 @@ public:
 	void InputEventHandling();
 	void CollisionCheck();
 	void CollisionEventHandling();
+	void ToEventManager(Event* evt);
 
 	~GameManager();
 };

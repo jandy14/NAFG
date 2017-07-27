@@ -18,6 +18,15 @@
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GameManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h">
@@ -36,6 +45,12 @@
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="InputManager.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="EventManager.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>
