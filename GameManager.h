@@ -7,6 +7,7 @@ using namespace std;
 class NetworkManager;
 class InputManager;
 class EventManager;
+class Event;
 class Object;
 
 enum STATE
@@ -18,7 +19,6 @@ enum STATE
 	GAMEOVER,
 	END
 };
-
 class GameManager
 {
 private:
@@ -27,13 +27,14 @@ private:
 	InputManager* inputManager;
 	EventManager* evtManager;
 
-	list<Object> objectList;
-
+	list<Object*> objectList;
+	list<Object*> netObjectList;
 	GameManager();
+	short FindMinValue(short type); // use in IDGenerator()
 public:
-	STATE state;
+	STATE state = INITAILIZING;
 	bool isHost;
-	int win, lose;
+	unsigned int win, lose;
 
 	static GameManager* GetInstance();
 	void Initailize();
@@ -42,10 +43,13 @@ public:
 	void PhysicsUpdate();
 	void Draw();
 	void KeyEvent(unsigned int value/*가상키코드*/);
-	void InputEventHandling();
+	void EventHandling();
 	void CollisionCheck();
-	void CollisionEventHandling();
-	void ToEventManager(Event* evt);
+	void LocalToEventManaget(Event* evt);
+	void LocalToEventManaget(short type, Object* owner);
+	void LocalToEventManaget(short type, short id_1, short id_2);
+	void NetworkToEventManager(Event* evt);
+	short IDGenerator(short type/*이벤트타입*/);
 
 	~GameManager();
 };

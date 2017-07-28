@@ -68,6 +68,6 @@ unsigned WINAPI NetworkManager::ReceiveFunc(void * arg)
 
 		/* if recv end, delete evt and break loop */
 		
-		gm->ToEventManager(evt);
+		gm->NetworkToEventManager(evt);
 	}
 }
