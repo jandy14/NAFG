@@ -14,12 +14,11 @@ class Player : public Object
 {
 private:
 	short gage;
-	unsigned int color;
 	float delay;
 	
 	bool isUp, isDown, isLeft, isRight;
 public:
-	Player(Vector2D pos, int color);
+	Player(Vector2D pos);
 	void SetDir(bool isKeyDown, DIRECTION dir);
 	virtual void Collide();
 	virtual void Update();

@@ -7,6 +7,7 @@ protected:
 	short id;			//id number
 	Vector2D velocity;	//속도
 	bool isAlive;		//생존여부
+
 	//충돌 정보
 public:
 	Vector2D pos;		//윈도우에서의 위치
@@ -15,6 +16,8 @@ public:
 	Object();
 	void Pysics();
 	short GetID() { return id; }
+	void SetPosition(short x, short y) { pos.x = x; pos.y = y; }
+	void SetDir(short pDir) { dir = pDir; }
 	virtual void Collide() = 0;
 	virtual void Update() = 0;
 	virtual void Draw() = 0;

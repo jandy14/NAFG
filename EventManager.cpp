@@ -6,17 +6,23 @@ void EventManager::Initailize()
 }
 void EventManager::LocalEventHandling()
 {
+	Object* obj;
 	for (auto it = evtList.begin(); it != evtList.end(); ++it)
 	{
-		(*it)->EventProcess();
+		obj = (*it)->EventProcess();
+		if (obj != nullptr)
+			gm->InsertList(obj, true);
 	}
 }
 void EventManager::NetworkEventHandling()
 {
 	//접근하기전에 동기화를 해야한다 mutax
+	Object* obj;
 	for (auto it = netEvtList.begin(); it != netEvtList.end(); ++it)
 	{
-		(*it)->EventProcess();
+		obj = (*it)->EventProcess();
+		if(obj != nullptr)
+			gm->InsertList(obj, false);
 	}
 }
 void EventManager::EventHandling()

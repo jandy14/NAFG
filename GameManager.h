@@ -10,6 +10,8 @@ class EventManager;
 class Event;
 class Object;
 
+typedef unsigned int COLOR; //XXRRGGBB
+
 enum STATE
 {
 	INITAILIZING,
@@ -29,12 +31,17 @@ private:
 
 	list<Object*> objectList;
 	list<Object*> netObjectList;
+	
+	COLOR playerColor;
+	COLOR opponentColor;
+
 	GameManager();
 	short FindMinValue(short type); // use in IDGenerator()
 public:
 	STATE state = INITAILIZING;
 	bool isHost;
 	unsigned int win, lose;
+	
 
 	static GameManager* GetInstance();
 	void Initailize();
@@ -50,6 +57,9 @@ public:
 	void LocalToEventManaget(short type, short id_1, short id_2);
 	void NetworkToEventManager(Event* evt);
 	short IDGenerator(short type/*이벤트타입*/);
-
+	void SetColor(unsigned short xr, unsigned short gb, bool isMe);
+	void SetPosition(short id, short posX, short posY, short pDir = 0);
+	void CollisionHandling(short id);
+	void InsertList(Object* obj, bool isLocal);
 	~GameManager();
 };
