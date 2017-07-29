@@ -4,7 +4,8 @@
 
 void InputManager::Initailize()
 {
-	FILE* f = fopen("input.txt", "rt");
+	FILE* f;
+	fopen_s(&f, "input.txt", "rt");
 	for (int i = 0; i < 8; ++i)
 	{
 		fscanf_s(f, "%u", keyValue[i]);

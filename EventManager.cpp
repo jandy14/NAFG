@@ -7,23 +7,34 @@ void EventManager::Initailize()
 void EventManager::LocalEventHandling()
 {
 	Object* obj;
-	for (auto it = evtList.begin(); it != evtList.end(); ++it)
+	Event* evt;
+	for (;!evtList.empty();)
 	{
-		obj = (*it)->EventProcess();
+		evt = evtList.front();
+		obj = evt->EventProcess();
 		if (obj != nullptr)
 			gm->InsertList(obj, true);
+		evtList.pop_front();
+		delete evt;
 	}
 }
 void EventManager::NetworkEventHandling()
 {
-	//접근하기전에 동기화를 해야한다 mutax
 	Object* obj;
-	for (auto it = netEvtList.begin(); it != netEvtList.end(); ++it)
+	Event* evt;
+	gm->EnterCriticalSection();
+	
+	for (; !netEvtList.empty();)
 	{
-		obj = (*it)->EventProcess();
-		if(obj != nullptr)
+		evt = netEvtList.front();
+		obj = evt->EventProcess();
+		if (obj != nullptr)
 			gm->InsertList(obj, false);
+		netEvtList.pop_front();
+		delete evt;
 	}
+	
+	gm->LeaveCriticalSection();
 }
 void EventManager::EventHandling()
 {
@@ -47,5 +58,9 @@ void EventManager::MakeEvent(short pType, short pID_1, short pID_2)
 }
 void EventManager::MakeNetEvent(Event* pEvt)
 {
+	gm->EnterCriticalSection();
+
 	netEvtList.push_back(pEvt);
+	
+	gm->LeaveCriticalSection();
 }

@@ -15,7 +15,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 	MSG Message;
 	WNDCLASS WndClass;
 	g_hInst = hInstance;
-	
+	GameManager::GetInstance();
+
 	//Create Window
 	{
 		WndClass.cbClsExtra = 0;
@@ -43,19 +44,19 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 	GameManager * gm = GameManager::GetInstance();
 	while (1)
 	{
-		if (gm->state == INITAILIZING)
+		if (gm->state == STATE::INITAILIZING)
 		{
 
 		}
-		else if (gm->state == WAITING)
+		else if (gm->state == STATE::WAITING)
 		{
 
 		}
-		else if (gm->state == SETTING)
+		else if (gm->state == STATE::SETTING)
 		{
 
 		}
-		else if (gm->state == GAMING)
+		else if (gm->state == STATE::GAMING)
 		{
 			startTime = timeGetTime();
 
@@ -68,11 +69,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 			}
 
 			/*  게임 루프  */
-			gm->InputEventHandling();
+			gm->EventHandling();//중요해서 두번 넣음
 			gm->PhysicsUpdate();
 			if (gm->isHost)
 				gm->CollisionCheck();
-			gm->CollisionEventHandling();
+			gm->EventHandling();//중요해서 두번 넣음
 			gm->Update();
 			gm->Draw();
 
@@ -86,7 +87,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 			else //Frame Skipping
 				elapsedTime -= (1000 / FPS);
 		}
-		else if (gm->state == GAMEOVER)
+		else if (gm->state == STATE::GAMEOVER)
 		{
 
 		}
@@ -132,10 +133,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 												 //인풋값 설정, 이벤트 리스트 초기화
 		return 0;
 	case WM_KEYDOWN:
-		GameManager* gm = GameManager::GetInstance();
-		if(gm->state == GAMING)
-			gm->KeyEvent(wParam);
-		return 0;
+		{
+			GameManager* gm = GameManager::GetInstance();
+			if (gm->state == STATE::GAMING)
+				gm->KeyEvent(wParam);
+			return 0;
+		}
 	case WM_PAINT:
 		return 0;
 	case WM_DESTROY:

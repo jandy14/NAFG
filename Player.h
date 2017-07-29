@@ -1,7 +1,7 @@
 #pragma once
 #include "Object.h"
 
-enum DIRECTION
+enum class DIRECTION
 {
 	UP,
 	DOWN,

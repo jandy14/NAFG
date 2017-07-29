@@ -1,3 +1,4 @@
+#include <mutex>
 #include "GameManager.h"
 #include "InputManager.h"
 #include "EventManager.h"
@@ -14,11 +15,12 @@ GameManager::GameManager() { }
 
 void GameManager::Initailize()
 {
-	state = INITAILIZING;
+	state = STATE::INITAILIZING;
 	win = lose = 0;
 	playerColor = 0;
 	opponentColor = 0;
-
+	
+	evtMutex = new std::mutex();
 	//list class doesn't need new();
 
 	netManager = new NetworkManager();
@@ -30,7 +32,7 @@ evtManager->Initailize();
 //netManager init is in diolog
 
 }
-void GameManager::NetInit(bool pIsHost, char* pIPAdress = "")
+void GameManager::NetInit(bool pIsHost, char* pIPAdress)
 {
 	isHost = pIsHost;
 	netManager->Initailize(isHost, pIPAdress);
@@ -59,15 +61,15 @@ void GameManager::CollisionCheck()
 {
 	/* need solution */
 }
-void GameManager::LocalToEventManaget(Event* pEvt)
+void GameManager::LocalToEventManager(Event* pEvt)
 {
 	evtManager->MakeEvent(pEvt);
 }
-void GameManager::LocalToEventManaget(short pType, Object* pOwner)
+void GameManager::LocalToEventManager(short pType, Object* pOwner)
 {
 	evtManager->MakeEvent(pType, pOwner);
 }
-void GameManager::LocalToEventManaget(short pType, short pID_1, short pID_2)
+void GameManager::LocalToEventManager(short pType, short pID_1, short pID_2)
 {
 	evtManager->MakeEvent(pType, pID_1, pID_2);
 }
@@ -87,7 +89,7 @@ short GameManager::FindMinValue(short pType)
 	{
 		for (auto i = netObjectList.begin(); i != netObjectList.end(); ++i)
 		{
-			objID = (*i)->GetID;
+			objID = (*i)->GetID();
 			if (objID > pType * 100 && objID < (pType + 1) * 100)
 			{
 				if (objID == pType * 100 + value)
@@ -101,7 +103,7 @@ short GameManager::FindMinValue(short pType)
 	{
 		for (auto i = objectList.begin(); i != objectList.end(); ++i)
 		{
-			objID = (*i)->GetID;
+			objID = (*i)->GetID();
 			if (objID > pType * 100 && objID < (pType + 1) * 100)
 			{
 				if (objID == pType * 100 + value)
@@ -134,7 +136,7 @@ void GameManager::SetPosition(short pID, short pPosX, short pPosY, short pDir)
 {
 	for (auto it = netObjectList.begin(); it != netObjectList.end(); ++it)
 	{
-		if ((*it)->GetID == pID)
+		if ((*it)->GetID() == pID)
 		{
 			(*it)->SetPosition(pPosX, pPosY);
 			(*it)->SetDir(pDir);
@@ -148,7 +150,7 @@ void GameManager::CollisionHandling(short pID)
 	{
 		for (auto it = netObjectList.begin(); it != netObjectList.end(); ++it)
 		{
-			if ((*it)->GetID == pID)
+			if ((*it)->GetID() == pID)
 			{
 				(*it)->Collide();
 				break;
@@ -159,11 +161,23 @@ void GameManager::CollisionHandling(short pID)
 	{
 		for (auto it = objectList.begin(); it != objectList.end(); ++it)
 		{
-			if ((*it)->GetID == pID)
+			if ((*it)->GetID() == pID)
 			{
 				(*it)->Collide();
 				break;
 			}
 		}
 	}
+}
+void GameManager::InsertList(Object* pObj, bool pIsLocal)
+{
+	//순서에 맞게 저장
+}
+void GameManager::EnterCriticalSection()
+{
+	evtMutex->lock();
+}
+void GameManager::LeaveCriticalSection()
+{
+	evtMutex->unlock();
 }

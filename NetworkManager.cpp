@@ -1,14 +1,16 @@
 #include <string.h>
+#include <thread>
+#include <WS2tcpip.h>
 #include "GameManager.h"
 #include "NetworkManager.h"
 #include "EventManager.h"
 #include "Event.h"
 
-void NetworkManager::Initailize(bool pIsHost, char* pIPAdress = "")
+void NetworkManager::Initailize(bool pIsHost, char* pIPAdress)
 {
 	gm = GameManager::GetInstance();
 	isHost = pIsHost;
-	strcpy(ipAdress, pIPAdress);
+	strcpy_s(ipAdress, pIPAdress);
 
 	if (isHost)
 	{
@@ -22,7 +24,7 @@ void NetworkManager::Initailize(bool pIsHost, char* pIPAdress = "")
 		servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 		servAddr.sin_port = htons(atoi("10001"));
 
-		if (bind(hServSock, (SOCKADDR*)&servAddr, sizeof(servAddr)) == SOCKET_ERROR)
+		if (::bind(hServSock, (SOCKADDR*)&servAddr, sizeof(servAddr)) == SOCKET_ERROR)
 		{ /* 오류 */ }
 	}
 	else
@@ -34,7 +36,8 @@ void NetworkManager::Initailize(bool pIsHost, char* pIPAdress = "")
 		{ /* 오류 */ }
 		memset(&servAddr, 0, sizeof(servAddr));
 		servAddr.sin_family = AF_INET;
-		servAddr.sin_addr.s_addr = inet_addr(ipAdress);
+		//servAddr.sin_addr.s_addr = inet_addr(ipAdress);
+		servAddr.sin_addr.s_addr = inet_pton(AF_INET,ipAdress,&servAddr.sin_addr);
 		servAddr.sin_port = htons(atoi("10001"));
 	}
 }
@@ -42,7 +45,7 @@ void NetworkManager::SendEvent(Event* pEvt)
 {
 	send(hClntSock, (char*)pEvt, sizeof(Event), 0);
 }
-unsigned WINAPI NetworkManager::ConnectFunc(void * arg)
+void NetworkManager::ConnectFunc()
 {
 	if (isHost)
 	{
@@ -58,8 +61,10 @@ unsigned WINAPI NetworkManager::ConnectFunc(void * arg)
 		if (connect(hClntSock, (SOCKADDR*)&servAddr, sizeof(servAddr)) == SOCKET_ERROR)
 		{ /* 오류 */ }
 	}
+	thread t(&NetworkManager::ReceiveFunc, this);
+	t.detach();
 }
-unsigned WINAPI NetworkManager::ReceiveFunc(void * arg)
+void NetworkManager::ReceiveFunc()
 {
 	while (1)
 	{
@@ -70,4 +75,9 @@ unsigned WINAPI NetworkManager::ReceiveFunc(void * arg)
 		
 		gm->NetworkToEventManager(evt);
 	}
+}
+void NetworkManager::StartThread()
+{
+	thread t(&NetworkManager::ConnectFunc, this);
+	t.detach();
 }
