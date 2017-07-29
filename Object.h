@@ -13,7 +13,7 @@ public:
 	Vector2D pos;		//윈도우에서의 위치
 	short dir;			//바라보는 방향
 
-	Object();
+	Object() {}
 	void Pysics();
 	short GetID() { return id; }
 	void SetPosition(short x, short y) { pos.x = x; pos.y = y; }

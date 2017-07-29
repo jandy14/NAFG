@@ -15,7 +15,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 	MSG Message;
 	WNDCLASS WndClass;
 	g_hInst = hInstance;
-	GameManager::GetInstance();
 
 	//Create Window
 	{
