@@ -49,9 +49,9 @@ void GameManager::Draw()
 {
 	//all object's Draw()
 }
-void GameManager::KeyEvent(unsigned int pValue)
+void GameManager::KeyEvent(unsigned int pValue, bool pIsKeyDown)
 {
-	inputManager->KeyEvent(pValue);
+	inputManager->KeyEvent(pValue, pIsKeyDown);
 }
 void GameManager::EventHandling()
 {
@@ -180,4 +180,8 @@ void GameManager::EnterCriticalSection()
 void GameManager::LeaveCriticalSection()
 {
 	evtMutex->unlock();
+}
+Player* GameManager::GetPlayer()
+{
+	return myPlayer;
 }

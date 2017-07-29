@@ -8,6 +8,8 @@ class InputManager;
 class EventManager;
 class Event;
 class Object;
+class Player;
+
 namespace std
 {
 	class mutex;
@@ -33,6 +35,8 @@ private:
 
 	std::mutex* evtMutex;
 	
+	Player* myPlayer;
+	
 	list<Object*> objectList;
 	list<Object*> netObjectList;
 	
@@ -53,7 +57,7 @@ public:
 	void Update();										//논리 업데이트
 	void PhysicsUpdate();								//물리 업데이트
 	void Draw();										//오브젝트 그리기
-	void KeyEvent(unsigned int value/*가상키코드*/);		//키입력 처리
+	void KeyEvent(unsigned int value, bool isKeyDown/*가상키코드*/);		//키입력 처리
 	void EventHandling();								//이벤트 처리
 	void CollisionCheck();								//충돌 체크후 이벤트 생성
 	void LocalToEventManager(Event* evt);								//이벤트매니저에게 로컬이벤트 넘김
@@ -67,5 +71,6 @@ public:
 	void InsertList(Object* obj, bool isLocal);			//오브젝트 리스트에 추가
 	void EnterCriticalSection();		//동시 접근 제한 설정
 	void LeaveCriticalSection();		//동시 접근 제한 해제
+	Player* GetPlayer();
 	~GameManager();
 };

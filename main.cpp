@@ -135,7 +135,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		{
 			GameManager* gm = GameManager::GetInstance();
 			if (gm->state == STATE::GAMING)
-				gm->KeyEvent(wParam);
+				gm->KeyEvent(wParam, true);
+			return 0;
+		}
+	case WM_KEYUP:
+		{
+			GameManager* gm = GameManager::GetInstance();
+			if (gm->state == STATE::GAMING)
+				gm->KeyEvent(wParam, false);
 			return 0;
 		}
 	case WM_PAINT:
