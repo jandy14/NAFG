@@ -18,8 +18,8 @@ public:
 	void Initailize();
 	void EventHandling();
 	void MakeEvent(Event* evt);
-	void MakeEvent(short type, Object* owner);// 키누름용 //
-	void MakeEvent(short type, short id_1, short id_2);
+	void MakeEvent(short type, Object* owner);			// 키누름용
+	void MakeEvent(short type, short id_1, short id_2);	//충돌용
 	void MakeNetEvent(Event* evt);
 };
 

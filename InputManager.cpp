@@ -45,24 +45,25 @@ void InputManager::KeyEvent(unsigned int pValue, bool pIsKeyDown)
 	else if (pValue == keyValue[4])
 	{
 		//칼
-		//로컬이벤트 생성
-		//이벤트 전송
+		//이벤트 생성
+		gm->LocalToEventManager(11, gm->GetPlayer());
 	}
 	else if (pValue == keyValue[5])
 	{
 		//총
-		//로컬이벤트 생성
-		//이벤트 전송
+		//이벤트 생성
+		gm->LocalToEventManager(12, gm->GetPlayer());
 	}
 	else if (pValue == keyValue[6])
 	{
 		//포
-		//로컬이벤트 생성
-		//이벤트 전송
+		//이벤트 생성
+		gm->LocalToEventManager(13, gm->GetPlayer());
 	}
 	else if (pValue == keyValue[7])
 	{
 		//뜀
 		//플레이어 상태 조절
+		gm->GetPlayer()->Dash();
 	}
 }

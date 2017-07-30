@@ -19,7 +19,7 @@ void GameManager::Initailize()
 	win = lose = 0;
 	playerColor = 0;
 	opponentColor = 0;
-	
+
 	evtMutex = new std::mutex();
 	//list class doesn't need new();
 
@@ -27,9 +27,9 @@ void GameManager::Initailize()
 	inputManager = new InputManager();
 	evtManager = new EventManager();
 
-inputManager->Initailize();
-evtManager->Initailize();
-//netManager init is in diolog
+	inputManager->Initailize();
+	evtManager->Initailize();
+	//netManager init is in diolog
 
 }
 void GameManager::NetInit(bool pIsHost, char* pIPAdress)
@@ -68,6 +68,7 @@ void GameManager::LocalToEventManager(Event* pEvt)
 void GameManager::LocalToEventManager(short pType, Object* pOwner)
 {
 	evtManager->MakeEvent(pType, pOwner);
+	
 }
 void GameManager::LocalToEventManager(short pType, short pID_1, short pID_2)
 {

@@ -49,7 +49,8 @@ public:
 	STATE state = STATE::INITAILIZING;
 	bool isHost;
 	unsigned int win, lose;
-	
+
+	//초기 설정 값 변수
 
 	static GameManager* GetInstance();
 	void Initailize();									//게임 매니저 초기화

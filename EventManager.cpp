@@ -48,8 +48,13 @@ void EventManager::MakeEvent(Event* pEvt)
 }
 void EventManager::MakeEvent(short pType, Object* pOwner)
 {
-	Event* evt = new Event(pType, gm->IDGenerator(pType), (short)pOwner->pos.x, (short)pOwner->pos.y, pOwner->dir, 0);
+	short id = gm->IDGenerator(pType);
+
+	Event* evt = new Event(pType, id, (short)pOwner->pos.x, (short)pOwner->pos.y, pOwner->dir, 0);
 	evtList.push_back(evt);
+
+	MakeNetEvent(new Event(pType + 10, id + 1000, (short)pOwner->pos.x, (short)pOwner->pos.y, pOwner->dir, 0));
+
 }
 void EventManager::MakeEvent(short pType, short pID_1, short pID_2)
 {
