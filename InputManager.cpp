@@ -46,24 +46,28 @@ void InputManager::KeyEvent(unsigned int pValue, bool pIsKeyDown)
 	{
 		//칼
 		//이벤트 생성
-		gm->LocalToEventManager(11, gm->GetPlayer());
+		if(pIsKeyDown)
+			gm->LocalToEventManager(11, gm->GetPlayer());
 	}
 	else if (pValue == keyValue[5])
 	{
 		//총
 		//이벤트 생성
-		gm->LocalToEventManager(12, gm->GetPlayer());
+		if (pIsKeyDown)
+			gm->LocalToEventManager(12, gm->GetPlayer());
 	}
 	else if (pValue == keyValue[6])
 	{
 		//포
 		//이벤트 생성
-		gm->LocalToEventManager(13, gm->GetPlayer());
+		if (pIsKeyDown)
+			gm->LocalToEventManager(13, gm->GetPlayer());
 	}
 	else if (pValue == keyValue[7])
 	{
 		//뜀
 		//플레이어 상태 조절
-		gm->GetPlayer()->Dash();
+		if (pIsKeyDown)
+			gm->GetPlayer()->Dash();
 	}
 }

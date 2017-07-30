@@ -43,30 +43,42 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 	GameManager * gm = GameManager::GetInstance();
 	while (1)
 	{
+		startTime = timeGetTime();
+
+		/*  메세지 처리  */
+		while (PeekMessage(&Message, NULL, 0, 0, PM_NOREMOVE))
+		{
+			GetMessage(&Message, NULL, 0, 0);
+			TranslateMessage(&Message);
+			DispatchMessage(&Message);
+		}
+
 		if (gm->state == STATE::INITAILIZING)
 		{
-
+			gm->Draw();
 		}
 		else if (gm->state == STATE::WAITING)
 		{
-
+			gm->Draw();
 		}
 		else if (gm->state == STATE::SETTING)
+		{
+			if (gm->isHost)
+				gm->SetObjectAbility();
+
+			gm->EventHandling();
+			gm->Draw();
+		}
+		else if (gm->state == STATE::READY)
+		{
+			gm->EventHandling();
+		}
+		else if (gm->state == STATE::GAMESTART)
 		{
 
 		}
 		else if (gm->state == STATE::GAMING)
 		{
-			startTime = timeGetTime();
-
-			/*  메세지 처리  */
-			while (PeekMessage(&Message, NULL, 0, 0, PM_NOREMOVE))
-			{
-				GetMessage(&Message, NULL, 0, 0);
-				TranslateMessage(&Message);
-				DispatchMessage(&Message);
-			}
-
 			/*  게임 루프  */
 			gm->EventHandling();//중요해서 두번 넣음
 			gm->PhysicsUpdate();
@@ -76,20 +88,20 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 			gm->Update();
 			gm->Draw();
 
-			/*  프레임 유지  */
-			elapsedTime += timeGetTime() - startTime;
-			if ((1000 / FPS) > elapsedTime)
-			{
-				Sleep((1000 / FPS) - elapsedTime);
-				elapsedTime = 0;
-			}
-			else //Frame Skipping
-				elapsedTime -= (1000 / FPS);
 		}
 		else if (gm->state == STATE::GAMEOVER)
 		{
 
 		}
+		/*  프레임 유지  */
+		elapsedTime += timeGetTime() - startTime;
+		if ((1000 / FPS) > elapsedTime)
+		{
+			Sleep((1000 / FPS) - elapsedTime);
+			elapsedTime = 0;
+		}
+		else //Frame Skipping
+			elapsedTime -= (1000 / FPS);
 	}
 
 	return (int)Message.wParam;

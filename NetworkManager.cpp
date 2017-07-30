@@ -40,10 +40,13 @@ void NetworkManager::Initailize(bool pIsHost, char* pIPAdress)
 		servAddr.sin_addr.s_addr = inet_pton(AF_INET,ipAdress,&servAddr.sin_addr);
 		servAddr.sin_port = htons(atoi("10001"));
 	}
+
+	StartThread();
 }
 void NetworkManager::SendEvent(Event* pEvt)
 {
 	send(hClntSock, (char*)pEvt, sizeof(Event), 0);
+	delete pEvt;
 }
 void NetworkManager::ConnectFunc()
 {
@@ -63,6 +66,8 @@ void NetworkManager::ConnectFunc()
 	}
 	thread t(&NetworkManager::ReceiveFunc, this);
 	t.detach();
+
+	GameManager::GetInstance()->state = STATE::SETTING;
 }
 void NetworkManager::ReceiveFunc()
 {

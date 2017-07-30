@@ -36,6 +36,8 @@ void GameManager::NetInit(bool pIsHost, char* pIPAdress)
 {
 	isHost = pIsHost;
 	netManager->Initailize(isHost, pIPAdress);
+
+	state = STATE::WAITING;
 }
 void GameManager::Update()
 {
@@ -182,7 +184,50 @@ void GameManager::LeaveCriticalSection()
 {
 	evtMutex->unlock();
 }
+void GameManager::SendEventToNetwork(Event* evt)
+{
+	netManager->SendEvent(evt);
+}
 Player* GameManager::GetPlayer()
 {
 	return myPlayer;
+}
+void GameManager::SetObjectAbility()
+{
+	if (isHost)
+	{
+		//내용내용
+
+		//내용 보내기
+		/*LocalToEventManager(new Event(91, xxxxxxx));
+		SendEventToNetwork(new Event(91, xxxxxxx));
+		LocalToEventManager(new Event(92, xxxxxxx));
+		SendEventToNetwork(new Event(92, xxxxxxx));
+		LocalToEventManager(new Event(93, xxxxxxx));
+		SendEventToNetwork(new Event(93, xxxxxxx));
+		LocalToEventManager(new Event(94, xxxxxxx));
+		SendEventToNetwork(new Event(94, xxxxxxx));
+		LocalToEventManager(new Event(00, xxxxxxx));
+		SendEventToNetwork(new Event(00, xxxxxxx));*/
+	}
+}
+void GameManager::GameReady()
+{
+	state = STATE::READY;
+
+	//리스트 초기화
+	//이벤트 초기화
+
+	//SendEventToNetwork(new Event(01, xxxxxxx));
+}
+void GameManager::GameStart()
+{
+	state = STATE::GAMESTART;
+
+	//플레이어 생성		 Local
+
+	//LocalToEventManger(new Event(10,)) 
+	//플레이어 생성이벤트 Network
+
+	state = STATE::GAMING;
 }

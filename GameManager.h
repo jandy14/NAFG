@@ -1,6 +1,7 @@
 #pragma once
 #define FPS 60
 #include <list>
+#include "Vector2D.h"
 using namespace std;
 
 class NetworkManager;
@@ -21,6 +22,8 @@ enum class STATE
 	INITAILIZING,
 	WAITING,
 	SETTING,
+	READY,
+	GAMESTART,
 	GAMING,
 	GAMEOVER,
 	END
@@ -49,6 +52,8 @@ public:
 	STATE state = STATE::INITAILIZING;
 	bool isHost;
 	unsigned int win, lose;
+	short bladeCost, ballCost, missileCost;
+	Vector2D hostPoint, guestPoint;
 
 	//초기 설정 값 변수
 
@@ -72,6 +77,10 @@ public:
 	void InsertList(Object* obj, bool isLocal);			//오브젝트 리스트에 추가
 	void EnterCriticalSection();		//동시 접근 제한 설정
 	void LeaveCriticalSection();		//동시 접근 제한 해제
+	void SendEventToNetwork(Event* evt);	//이벤트 소켓 전송
 	Player* GetPlayer();
+	void SetObjectAbility();
+	void GameReady();
+	void GameStart();
 	~GameManager();
 };
