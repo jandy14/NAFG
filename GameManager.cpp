@@ -1,4 +1,5 @@
 #include <mutex>
+#include "Setting.h" 
 #include "GameManager.h"
 #include "InputManager.h"
 #include "EventManager.h"
@@ -50,7 +51,7 @@ void GameManager::Update()
 }
 void GameManager::PhysicsUpdate()
 {
-	//only objectList's Pysics()
+	//only objectList's Physics()
 }
 void GameManager::Draw()
 {
@@ -234,43 +235,62 @@ void GameManager::SetGame()
 {
 	if (!isAlreadySet)
 	{
+		short var_1, var_2, var_3, var_4, var_5;
+		float tmp_1, tmp_2;
+		FILE* f;
+		fopen_s(&f, "Setting.txt", "rt");
 
 		COLOR _myColor,_opponentColor;
 		//내용 읽고 저장하기
-
-		short var_1, var_2, var_3, var_4, var_5;
-		float tmp;
+		fscanf_s(f, "%*s : %x\n%*s : %x\n", &_myColor, &_opponentColor);
+		if (_opponentColor >= 0x1000000)
+			opponentColor = 0;
+		playerColor = _myColor;
 
 		//내용 읽고 보내기
 		//Event 91 (Player) speed, maxgauge, charging speed, (f)blade delay
-
+		fscanf_s(f, "%*s : %d\n%*s : %d\n%*s : %d\n%*s : %f\n", &var_1, &var_2, &var_3, &tmp_1);
+		var_4 = (*((unsigned int*)&tmp_1) >> 16) & 0xff;
+		var_5 = *((unsigned int*)&tmp_1) & 0xff;
 		LocalToEventManager(new Event(91, var_1, var_2, var_3, var_4, var_5));
 		SendEventToNetwork(new Event(91, var_1, var_2, var_3, var_4, var_5));
 
 		//Event 92 (player) dashSpeed, (f)gaugeStopTime, (f)dashTime
-
+		fscanf_s(f, "%*s : %d\n%*s : %f\n%*s : %f\n", &var_1, &tmp_1, &tmp_2);
+		var_2 = (*((unsigned int*)&tmp_1) >> 16) & 0xff;
+		var_3 = *((unsigned int*)&tmp_1) & 0xff;
+		var_4 = (*((unsigned int*)&tmp_2) >> 16) & 0xff;
+		var_5 = *((unsigned int*)&tmp_2) & 0xff;
 		LocalToEventManager(new Event(92, var_1, var_2, var_3, var_4, var_5));
 		SendEventToNetwork(new Event(92, var_1, var_2, var_3, var_4, var_5));
 
 		//Event 93 (Blade) min requirement, cost
-
+		fscanf_s(f, "%*s : %d\n%*s : %d\n", &var_1, &var_2);
 		LocalToEventManager(new Event(93, var_1, var_2, 0, 0, 0));
 		SendEventToNetwork(new Event(93, var_1, var_2, 0, 0, 0));
 
 		//Event 94 (Ball) (f)castingTime, (f)durationTime, cost
-
+		fscanf_s(f, "%*s : %f\n%*s : %f\n%*s : %d\n", &tmp_1, &tmp_2, &var_5);
+		var_1 = (*((unsigned int*)&tmp_1) >> 16) & 0xff;
+		var_2 = *((unsigned int*)&tmp_1) & 0xff;
+		var_3 = (*((unsigned int*)&tmp_2) >> 16) & 0xff;
+		var_4 = *((unsigned int*)&tmp_2) & 0xff;
 		LocalToEventManager(new Event(94, var_1, var_2, var_3, var_4, var_5));
 		SendEventToNetwork(new Event(94, var_1, var_2, var_3, var_4, var_5));
 
-		//Event 95 (Missile) (f)durationTime, cost
-
-		LocalToEventManager(new Event(95, var_1, var_2, var_3, 0, 0));
-		SendEventToNetwork(new Event(95, var_1, var_2, var_3, 0, 0));
+		//Event 95 (Missile) (f)durationTime, speed, cost
+		fscanf_s(f, "%*s : %f\n%*s : %d\n%*s : %d\n", &tmp_1, &var_3, &var_4);
+		var_1 = (*((unsigned int*)&tmp_1) >> 16) & 0xff;
+		var_2 = *((unsigned int*)&tmp_1) & 0xff;
+		LocalToEventManager(new Event(95, var_1, var_2, var_3, var_4, 0));
+		SendEventToNetwork(new Event(95, var_1, var_2, var_3, var_4, 0));
 
 		//Event 96 (Start Setting) host X, host Y, Guest X, Guest Y, StartGauge
-
+		fscanf_s(f, "%*s : %d\n%*s : %d\n%*s : %d\n%*s : %d\n%*s : %d", &var_1, &var_2, &var_3, &var_4, &var_5);
 		LocalToEventManager(new Event(96, var_1, var_2, var_3, var_4, var_5));
 		SendEventToNetwork(new Event(96, var_1, var_2, var_3, var_4, var_5));
+
+		fclose(f);
 
 		//Event 00 (GameReady)
 		LocalToEventManager(new Event(00, 0, 0, 0, 0, 0));

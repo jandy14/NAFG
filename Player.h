@@ -20,8 +20,9 @@ private:
 	static float bladeDelay;
 	static float gaugeStopTime;
 	static float dashTime;
-	short gage;
-	float delay;
+	short gauge;
+	float gaugeStopTimer;
+	float delayTimer;
 	float dashTimer;
 	bool isUp, isDown, isLeft, isRight;
 public:
@@ -30,6 +31,8 @@ public:
 	static void SetAbility(short dashSpeed, float gaugeStopTime, float dashTime);
 	void SetDir(bool isKeyDown, DIRECTION dir);
 	void Dash();
+	short GetGauge();
+	short SetGauge(short value);
 	virtual void Collide();
 	virtual void Update();
 	virtual void Draw();

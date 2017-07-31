@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include "Setting.h"
 #include "resource.h"
 #include "GameManager.h"
 #include "Event.h"

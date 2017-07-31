@@ -1,7 +1,7 @@
 #pragma once
-#define FPS 60
 #include <list>
 #include "Vector2D.h"
+
 using namespace std;
 
 class NetworkManager;

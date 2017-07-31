@@ -16,7 +16,7 @@ public:
 	Object() {}
 	Object(short id, Vector2D pos, short dir);
 	Object(short id, short posX, short posY, short dir);
-	void Pysics();
+	void Physics();
 	short GetID() { return id; }
 	void SetPosition(short x, short y) { pos.x = x; pos.y = y; }
 	void SetDir(short pDir) { dir = pDir; }
@@ -24,5 +24,5 @@ public:
 	virtual void Collide() = 0;
 	virtual void Update() = 0;
 	virtual void Draw() = 0;
-	~Object();
+	~Object() { }
 };
