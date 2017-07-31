@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include "EventManager.h"
 #include "NetworkManager.h"
+#include "Player.h"
 
 GameManager* GameManager::GetInstance()
 {
@@ -266,10 +267,10 @@ void GameManager::SetGame()
 		LocalToEventManager(new Event(95, var_1, var_2, var_3, 0, 0));
 		SendEventToNetwork(new Event(95, var_1, var_2, var_3, 0, 0));
 
-		//Event 96 (Start Point) host X, host Y, Guest X, Guest Y
+		//Event 96 (Start Setting) host X, host Y, Guest X, Guest Y, StartGauge
 
-		LocalToEventManager(new Event(96, var_1, var_2, var_3, var_4, 0));
-		SendEventToNetwork(new Event(96, var_1, var_2, var_3, var_4, 0));
+		LocalToEventManager(new Event(96, var_1, var_2, var_3, var_4, var_5));
+		SendEventToNetwork(new Event(96, var_1, var_2, var_3, var_4, var_5));
 
 		//Event 00 (GameReady)
 		LocalToEventManager(new Event(00, 0, 0, 0, 0, 0));
@@ -306,9 +307,9 @@ void GameManager::ResetObjectList()
 		delete obj;
 	}
 }
-void GameManger::ResetEventList()
+void GameManager::ResetEventList()
 {
-	netManager->ResetEventList();
+	evtManager->ResetEventList();
 }
 void GameManager::GameStart()
 {
@@ -322,7 +323,7 @@ void GameManager::GameStart()
 	else
 		myPoint = guestPoint;
 	id = IDGenerator(10);
-	LocalToEventManger(new Event(10, id, (short)myPoint.x, (short)myPoint.y, 0, 0));
+	LocalToEventManager(new Event(10, id, (short)myPoint.x, (short)myPoint.y, 0, 0));
 	//플레이어 생성이벤트 Network
 	SendEventToNetwork(new Event(20, id + 1000, (short)myPoint.x, (short)myPoint.y, (short)(playerColor>>16), (short)(playerColor)));
 
@@ -342,5 +343,36 @@ void GameManager::GameOver(bool pIsWin)
 }
 bool GameManager::PlayerIsDied()
 {
-	return myPlayer->IsDied();
+	return myPlayer->IsDead();
+}
+void GameManager::DeleteDeadObject()
+{
+	auto it = objectList.begin();
+	for (; it != objectList.end(); ++it)
+	{
+		if ((*it)->GetID() == 1001)
+			continue;
+		if ((*it)->IsDead)
+		{
+			//될거같은데 혹시 몰라서
+			//Debug모드는 포인터값을 알아서 바꿔버리는 경우가 있다.(객체 사라질때)
+			//delete *it;
+			//objectList.remove(*it);
+			Object* obj = *it;
+			objectList.remove(*it);
+			delete obj;
+		}
+	}
+	it = netObjectList.begin();
+	for (; it != netObjectList.end(); ++it)
+	{
+		if ((*it)->GetID() == 2001)
+			continue;
+		if ((*it)->IsDead)
+		{
+			Object* obj = *it;
+			netObjectList.remove(*it);
+			delete obj;
+		}
+	}
 }

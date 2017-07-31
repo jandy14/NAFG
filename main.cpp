@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include "resource.h"
 #include "GameManager.h"
-
+#include "Event.h"
 BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;
@@ -64,7 +64,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 		else if (gm->state == STATE::SETTING)
 		{
 			if (gm->isHost)
-				gm->SetObjectAbility();
+				gm->SetGame();
 
 			gm->EventHandling();
 			gm->Draw();
@@ -86,6 +86,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 			if (gm->isHost)
 				gm->CollisionCheck();
 			gm->EventHandling();//중요해서 두번 넣음
+			gm->DeleteDeadObject();
 			gm->Update();
 			gm->Draw();
 

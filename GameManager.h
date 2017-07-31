@@ -61,6 +61,7 @@ public:
 	bool isHost;
 	unsigned int win, lose;
 	short bladeCost, ballCost, missileCost;
+	short startGauge;
 	Vector2D hostPoint, guestPoint;
 
 	//초기 설정 값 변수
@@ -93,5 +94,6 @@ public:
 	void GameStart();
 	void GameOver(bool isWin);
 	bool PlayerIsDied();
+	void DeleteDeadObject();
 	~GameManager();
 };

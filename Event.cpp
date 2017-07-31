@@ -20,8 +20,8 @@ Object* Event::EventProcess()
 
 	case 10:
 		//³ª
-		obj = new Player(Vector2D(posX, posY));
-		gm->SetPlayer(obj);
+		obj = new Player(1001, Vector2D(posX, posY));
+		gm->SetPlayer((Player*)obj);
 		break;
 	case 11:
 		//³» Ä®
@@ -40,7 +40,7 @@ Object* Event::EventProcess()
 		break;
 	case 20:
 		//»ó´ë
-		obj = new Player(Vector2D(posX, posY));
+		obj = new Player(2001, Vector2D(posX, posY));
 		gm->SetColor(dir, tmpVar, false);
 		break;
 	case 21:
@@ -106,6 +106,7 @@ Object* Event::EventProcess()
 	case 96:
 		gm->hostPoint = Vector2D(id, posX); //x,y
 		gm->guestPoint = Vector2D(posY, dir); //x,y
+		gm->startGauge = tmpVar;
 		break;
 	}
 	//(11==21, 12==22, 13==23)
