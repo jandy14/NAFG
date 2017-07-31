@@ -22,4 +22,5 @@ public:
 	void SendEvent(Event* evt);
 
 	void StartThread(); //쓰레드 생성 함수
+	~NetworkManager();
 };

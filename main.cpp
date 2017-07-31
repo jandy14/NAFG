@@ -168,8 +168,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				gm->KeyEvent(wParam, false);
 			return 0;
 		}
-	case WM_PAINT:
-		return 0;
+	case WM_LBUTTONDOWN:
+		{
+			GameManager* gm = GameManager::GetInstance();
+			if (gm->state == STATE::GAMING)
+				gm->KeyEvent(01, false);
+			return 0;
+		}
+	case WM_RBUTTONDOWN:
+		{
+			GameManager* gm = GameManager::GetInstance();
+			if (gm->state == STATE::GAMING)
+				gm->KeyEvent(02, false);
+			return 0;
+		}
+	/*case WM_PAINT:
+		return 0;*/
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;

@@ -1,10 +1,6 @@
 #include "Object.h"
 #include "Setting.h"
 
-void Object::Physics()
-{
-
-}
 Object::Object(short pID, Vector2D pPos, short pDir)
 {
 	id = pID;

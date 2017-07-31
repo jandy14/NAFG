@@ -85,3 +85,7 @@ void EventManager::ResetEventList()
 		delete evt;
 	}
 }
+EventManager::~EventManager()
+{
+	ResetEventList();
+}

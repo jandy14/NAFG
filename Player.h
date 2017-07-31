@@ -20,6 +20,7 @@ private:
 	static float bladeDelay;
 	static float gaugeStopTime;
 	static float dashTime;
+	float gaugeFraction;
 	short gauge;
 	float gaugeStopTimer;
 	float delayTimer;
@@ -30,11 +31,13 @@ public:
 	static void SetAbility(short speed, short maxGauge, short chargingSpeed, float bladeDelay);
 	static void SetAbility(short dashSpeed, float gaugeStopTime, float dashTime);
 	void SetDir(bool isKeyDown, DIRECTION dir);
-	void Dash();
-	short GetGauge();
-	short SetGauge(short value);
+	void Dash() { dashTimer = dashTime; }
+	void GaugeStop() { gaugeStopTimer = gaugeStopTime; }
+	void BladeDelay() { delayTimer = bladeDelay; }
+	short GetGauge() { return gauge; }
+	void SetGauge(short value);
 	virtual void Collide();
 	virtual void Update();
-	virtual void Draw();
-	~Player();
+	virtual void Draw() {}
+	~Player() {}
 };

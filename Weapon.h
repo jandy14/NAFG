@@ -3,16 +3,16 @@
 class Blade : public Object
 {
 private:
-	static short minGage;
+	static short minRequirement;
 	float elapsedTime;
 public:
-	static void SetAbility(short minGage);
+	static void SetAbility(short minRequirement);
 	Blade(short id, Vector2D pos, short dir) : Object(id, pos, dir) { }
 	Blade(short id, short posX, short posY, short dir) : Object(id, posX, posY, dir) { }
 	virtual void Collide();
 	virtual void Update();
 	virtual void Draw();
-	~Blade();
+	virtual ~Blade() {}
 };
 
 class Ball : public Object
@@ -28,7 +28,7 @@ public:
 	virtual void Collide();
 	virtual void Update();
 	virtual void Draw();
-	~Ball();
+	virtual ~Ball() {}
 };
 
 class Missile : public Object
@@ -44,5 +44,5 @@ public:
 	virtual void Collide();
 	virtual void Update();
 	virtual void Draw();
-	~Missile();
+	virtual ~Missile() {}
 };

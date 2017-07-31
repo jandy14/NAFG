@@ -60,7 +60,8 @@ public:
 	STATE state = STATE::INITAILIZING;
 	bool isHost;
 	unsigned int win, lose;
-	short bladeCost, ballCost, missileCost;
+	short bladeCost, ballCost, missileCost, dashCost;
+	short bladeMinRequirement;
 	short startGauge;
 	Vector2D hostPoint, guestPoint;
 
@@ -95,5 +96,6 @@ public:
 	void GameOver(bool isWin);
 	bool PlayerIsDied();
 	void DeleteDeadObject();
+	bool SpendGauge(short type);
 	~GameManager();
 };

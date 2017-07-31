@@ -88,7 +88,12 @@ void GameManager::NetworkToEventManager(Event* pEvt)
 }
 GameManager::~GameManager()
 {
-	/* 작성 필요 */
+	delete netManager;
+	delete inputManager;
+	delete evtManager;
+
+	delete evtMutex;
+	ResetObjectList();
 }
 short GameManager::FindMinValue(short pType)
 {
@@ -238,7 +243,7 @@ void GameManager::SetGame()
 		short var_1, var_2, var_3, var_4, var_5;
 		float tmp_1, tmp_2;
 		FILE* f;
-		fopen_s(&f, "Setting.txt", "rt");
+		fopen_s(&f, "GameSetting.txt", "rt");
 
 		COLOR _myColor,_opponentColor;
 		//내용 읽고 저장하기
@@ -264,10 +269,10 @@ void GameManager::SetGame()
 		LocalToEventManager(new Event(92, var_1, var_2, var_3, var_4, var_5));
 		SendEventToNetwork(new Event(92, var_1, var_2, var_3, var_4, var_5));
 
-		//Event 93 (Blade) min requirement, cost
-		fscanf_s(f, "%*s : %d\n%*s : %d\n", &var_1, &var_2);
-		LocalToEventManager(new Event(93, var_1, var_2, 0, 0, 0));
-		SendEventToNetwork(new Event(93, var_1, var_2, 0, 0, 0));
+		//Event 93 (Blade) min requirement, cost		&& DashCost
+		fscanf_s(f, "%*s : %d\n%*s : %d\n%*s : %d\n", &var_1, &var_2, &var_3);
+		LocalToEventManager(new Event(93, var_1, var_2, var_3, 0, 0));
+		SendEventToNetwork(new Event(93, var_1, var_2, var_3, 0, 0));
 
 		//Event 94 (Ball) (f)castingTime, (f)durationTime, cost
 		fscanf_s(f, "%*s : %f\n%*s : %f\n%*s : %d\n", &tmp_1, &tmp_2, &var_5);
@@ -320,7 +325,7 @@ void GameManager::ResetObjectList()
 		objectList.pop_front();
 		delete obj;
 	}
-	for(;!netObjectList.empty;)
+	for(;!netObjectList.empty();)
 	{
 		obj = netObjectList.front();
 		netObjectList.pop_front();
@@ -372,7 +377,7 @@ void GameManager::DeleteDeadObject()
 	{
 		if ((*it)->GetID() == 1001)
 			continue;
-		if ((*it)->IsDead)
+		if ((*it)->IsDead())
 		{
 			//될거같은데 혹시 몰라서
 			//Debug모드는 포인터값을 알아서 바꿔버리는 경우가 있다.(객체 사라질때)
@@ -388,7 +393,7 @@ void GameManager::DeleteDeadObject()
 	{
 		if ((*it)->GetID() == 2001)
 			continue;
-		if ((*it)->IsDead)
+		if ((*it)->IsDead())
 		{
 			Object* obj = *it;
 			netObjectList.remove(*it);
@@ -396,3 +401,40 @@ void GameManager::DeleteDeadObject()
 		}
 	}
 }
+bool GameManager::SpendGauge(short pType)
+{
+	short _cost;
+	short _gauge;
+	switch (pType)
+	{
+	case 11:
+		_cost = bladeCost;
+		break;
+	case 12:
+		_cost = ballCost;
+		break;
+	case 13:
+		_cost = missileCost;
+		break;
+	case 14:
+		_cost = dashCost;
+	}
+	
+	_gauge = myPlayer->GetGauge();
+	
+	if (pType == 11)
+	{
+		if (_gauge < bladeMinRequirement)
+			return false;
+	}
+
+	if (_gauge > _cost)
+	{
+		myPlayer->SetGauge(_gauge - _cost);
+		return true;
+	}
+	else
+		return false;
+}
+
+GameManager* GameManager::instance;

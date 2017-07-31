@@ -86,3 +86,10 @@ void NetworkManager::StartThread()
 	thread t(&NetworkManager::ConnectFunc, this);
 	t.detach();
 }
+NetworkManager::~NetworkManager()
+{
+	if(gm->isHost)
+		closesocket(hClntSock);
+	closesocket(hServSock);
+	WSACleanup();
+}

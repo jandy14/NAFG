@@ -1,10 +1,18 @@
 #include "Weapon.h"
 
-void Blade::SetAbility(short pMinGage)
+void Blade::SetAbility(short pMinRequirement)
 {
-	minGage = pMinGage;
+	minRequirement = pMinRequirement;
 }
 void Blade::Collide()
+{
+
+}
+void Blade::Update()
+{
+
+}
+void Blade::Draw()
 {
 
 }
@@ -17,6 +25,14 @@ void Ball::Collide()
 {
 
 }
+void Ball::Update()
+{
+
+}
+void Ball::Draw()
+{
+
+}
 void Missile::SetAbility(float pDurationTime, short pSpeed)
 {
 	durationTime = pDurationTime;
@@ -26,3 +42,19 @@ void Missile::Collide()
 {
 	isAlive = false;
 }
+void Missile::Update()
+{
+
+}
+void Missile::Draw()
+{
+
+}
+
+short Blade::minRequirement;
+
+float Ball::castingTime;
+float Ball::durationTime;
+
+float Missile::durationTime;
+short Missile::speed;

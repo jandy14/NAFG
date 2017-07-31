@@ -9,6 +9,7 @@ Player::Player(short pID, Vector2D pPos)
 	gaugeStopTimer = delayTimer = dashTimer = 0;
 	isUp = isDown = isLeft = isRight = false;
 	gauge = GameManager::GetInstance()->startGauge;
+	gaugeFraction = 0.0f;
 }
 
 void Player::SetAbility(short pSpeed, short pMaxGauge, short pChargingSpeed, float pBladeDelay)
@@ -16,7 +17,7 @@ void Player::SetAbility(short pSpeed, short pMaxGauge, short pChargingSpeed, flo
 	speed = pSpeed;
 	maxGauge = pMaxGauge;
 	chargingSpeed = pChargingSpeed;
-	bladeDelay = pBladeDelay;
+	Player::bladeDelay = pBladeDelay;
 }
 void Player::SetAbility(short pDashSpeed, float pGaugeStopTime, float pDashTime)
 {
@@ -42,9 +43,14 @@ void Player::SetDir(bool pIsKeyDown, DIRECTION pDir)
 		break;
 	}
 }
-void Player::Dash()
+void Player::SetGauge(short pValue)
 {
-	dashTimer = dashTime;
+	if (pValue > maxGauge)
+		gauge = maxGauge;
+	else if (pValue < 0)
+		gauge = 0;
+	else
+		gauge = pValue;
 }
 void Player::Collide()
 {
@@ -63,7 +69,25 @@ void Player::Update()
 	if (isRight)
 		_vel.x += 1;
 
-	velocity = _vel.Normalize() * speed;
+	if(dashTimer == 0)
+		velocity = _vel.Normalize() * speed;
+	else
+		velocity = _vel.Normalize() * dashSpeed;
+
+	if (gauge < maxGauge)
+	{
+		gaugeFraction += (chargingSpeed * (1.0 / FPS));
+		if (gaugeFraction > 1)
+		{
+			gauge += ((int)gaugeFraction);
+			gaugeFraction -= ((int)gaugeFraction);
+		}
+		if (gauge >= maxGauge)
+		{
+			gauge = maxGauge;
+			gaugeFraction = 0.0f;
+		}
+	}
 
 	if (gaugeStopTimer > 0)
 	{
@@ -84,3 +108,10 @@ void Player::Update()
 			dashTimer = 0;
 	}
 }
+short Player::speed;
+short Player::dashSpeed;
+short Player::maxGauge;
+short Player::chargingSpeed;
+float Player::bladeDelay;
+float Player::gaugeStopTime;
+float Player::dashTime;

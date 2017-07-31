@@ -5,10 +5,10 @@
 void InputManager::Initailize()
 {
 	FILE* f;
-	fopen_s(&f, "input.txt", "rt");
+	fopen_s(&f, "KeySetting.txt", "rt");
 	for (int i = 0; i < 8; ++i)
 	{
-		fscanf_s(f, "%u", keyValue[i]);
+		fscanf_s(f, "%*s : %d\n", &keyValue[i]);
 	}
 	fclose(f);
 
@@ -46,28 +46,40 @@ void InputManager::KeyEvent(unsigned int pValue, bool pIsKeyDown)
 	{
 		//칼
 		//이벤트 생성
-		if(pIsKeyDown)
-			gm->LocalToEventManager(11, gm->GetPlayer());
+		if (pIsKeyDown)
+		{
+			if(gm->SpendGauge(11))
+				gm->LocalToEventManager(11, gm->GetPlayer());
+		}
 	}
 	else if (pValue == keyValue[5])
 	{
 		//총
 		//이벤트 생성
 		if (pIsKeyDown)
-			gm->LocalToEventManager(12, gm->GetPlayer());
+		{
+			if (gm->SpendGauge(12))
+				gm->LocalToEventManager(12, gm->GetPlayer());
+		}
 	}
 	else if (pValue == keyValue[6])
 	{
 		//포
 		//이벤트 생성
 		if (pIsKeyDown)
-			gm->LocalToEventManager(13, gm->GetPlayer());
+		{
+			if (gm->SpendGauge(13))
+				gm->LocalToEventManager(13, gm->GetPlayer());
+		}
 	}
 	else if (pValue == keyValue[7])
 	{
 		//뜀
 		//플레이어 상태 조절
 		if (pIsKeyDown)
-			gm->GetPlayer()->Dash();
+		{
+			if (gm->SpendGauge(14))
+				gm->GetPlayer()->Dash();
+		}
 	}
 }

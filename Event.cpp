@@ -87,7 +87,9 @@ Object* Event::EventProcess()
 		//칼 설정
 		//SetAbility(minGauge);
 		Blade::SetAbility(id);
+		gm->bladeMinRequirement = id;
 		gm->bladeCost = posX;
+		gm->dashCost = posY;
 		break;
 	case 94:
 		//공 설정

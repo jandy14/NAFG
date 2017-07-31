@@ -22,6 +22,7 @@ public:
 	void MakeEvent(short type, short id_1, short id_2);	//충돌용
 	void MakeNetEvent(Event* evt);
 	void ResetEventList();
+	~EventManager();
 };
 
 //받은 이벤트의 id는 송신자측에서 이미 변환되어서 오니 바꿀 필요없다.
