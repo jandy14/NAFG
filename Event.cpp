@@ -15,10 +15,13 @@ Object* Event::EventProcess()
 		gm->GameReady();
 	case 01:
 		gm->GameStart();
+	case 02:
+		gm->GameOver((id == 1) ? true : false);
+
 	case 10:
 		//나
 		obj = new Player(Vector2D(posX, posY));
-		gm->SetColor(dir, tmpVar, true);
+		gm->SetPlayer(obj);
 		break;
 	case 11:
 		//내 칼
@@ -71,16 +74,22 @@ Object* Event::EventProcess()
 	case 91:
 		//플레이어 설정
 		tmp = ((int)dir << 16) | tmpVar; //blade delay
-		//SetAbility(speed, maxgage, charging speed, blade delay);
+		//SetAbility(speed, maxgauge, charging speed, blade delay);
 		Player::SetAbility(id, posX, posY, *((float*)&tmp));
 		break;
 	case 92:
+		tmp = ((int)posX << 16) | posY; //gaugeStopTime
+		tmp2 = ((int)dir << 16) | tmpVar; //dashTime
+		//SetAbility(dashSpeed, gaugeStopTime, dashTime) (overloading)
+		Player::SetAbility(id, *((float*)&tmp), *((float*)&tmp2));
+		break;
+	case 93:
 		//칼 설정
-		//SetAbility(minGage);
+		//SetAbility(minGauge);
 		Blade::SetAbility(id);
 		gm->bladeCost = posX;
 		break;
-	case 93:
+	case 94:
 		//공 설정
 		tmp = ((int)id << 16) | posX; //castingTime
 		tmp2 = ((int)posY << 16) | dir; //durationTime
@@ -88,15 +97,16 @@ Object* Event::EventProcess()
 		Ball::SetAbility(*((float*)&tmp), *((float*)&tmp2));
 		gm->ballCost = tmpVar;
 		break;
-	case 94:
+	case 95:
 		//포 설정
 		tmp = ((int)id << 16) | posX; //durationTime(LifeTime)
 		Missile::SetAbility(*((float*)&tmp), posY);
 		gm->missileCost = dir;
 		break;
-	case 95:
+	case 96:
 		gm->hostPoint = Vector2D(id, posX); //x,y
 		gm->guestPoint = Vector2D(posY, dir); //x,y
+		break;
 	}
 	//(11==21, 12==22, 13==23)
 	//완전 같을줄은 몰랐는데 일단은 이렇게 둬야겠다

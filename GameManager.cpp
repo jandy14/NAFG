@@ -20,6 +20,10 @@ void GameManager::Initailize()
 	playerColor = 0;
 	opponentColor = 0;
 
+	bladeIDNum = 1;
+	ballIDNum = 1;
+	missileIDNum = 1;
+
 	evtMutex = new std::mutex();
 	//list class doesn't need new();
 
@@ -70,7 +74,7 @@ void GameManager::LocalToEventManager(Event* pEvt)
 void GameManager::LocalToEventManager(short pType, Object* pOwner)
 {
 	evtManager->MakeEvent(pType, pOwner);
-	
+
 }
 void GameManager::LocalToEventManager(short pType, short pID_1, short pID_2)
 {
@@ -86,36 +90,61 @@ GameManager::~GameManager()
 }
 short GameManager::FindMinValue(short pType)
 {
-	short value = 1;
-	short objID;
-	if (pType == 23 || pType == 20)
+	// short value = 1;
+	// short objID;
+	// if (pType == 23 || pType == 20)
+	// {
+	// 	for (auto i = netObjectList.begin(); i != netObjectList.end(); ++i)
+	// 	{
+	// 		objID = (*i)->GetID();
+	// 		if (objID > pType * 100 && objID < (pType + 1) * 100)
+	// 		{
+	// 			if (objID == pType * 100 + value)
+	// 				++value;
+	// 			else
+	// 				break;
+	// 		}
+	// 	}
+	// }
+	// else
+	// {
+	// 	for (auto i = objectList.begin(); i != objectList.end(); ++i)
+	// 	{
+	// 		objID = (*i)->GetID();
+	// 		if (objID > pType * 100 && objID < (pType + 1) * 100)
+	// 		{
+	// 			if (objID == pType * 100 + value)
+	// 				++value;
+	// 			else
+	// 				break;
+	// 		}
+	// 	}
+	// }
+	short value;
+	if(pType == 10)
+		return 1;
+	else if(pType == 11)
 	{
-		for (auto i = netObjectList.begin(); i != netObjectList.end(); ++i)
-		{
-			objID = (*i)->GetID();
-			if (objID > pType * 100 && objID < (pType + 1) * 100)
-			{
-				if (objID == pType * 100 + value)
-					++value;
-				else
-					break;
-			}
-		}
+		value = bladeIDNum;
+		++bladeIDNum;
+		if(bladeIDNum == 100)
+			bladeIDNum = 1;
 	}
-	else
+	else if(pType == 12)
 	{
-		for (auto i = objectList.begin(); i != objectList.end(); ++i)
-		{
-			objID = (*i)->GetID();
-			if (objID > pType * 100 && objID < (pType + 1) * 100)
-			{
-				if (objID == pType * 100 + value)
-					++value;
-				else
-					break;
-			}
-		}
+		value = ballIDNum;
+		++ballIDNum;
+		if(ballIDNum == 100)
+			ballIDNum = 1;
 	}
+	else if(pType == 13)
+	{
+		value = missileIDNum;
+		++missileIDNum;
+		if(missileIDNum == 100)
+			missileIDNum = 1;
+	}
+
 	if (value == 100)
 		return 0;	//오버플로우
 
@@ -123,6 +152,7 @@ short GameManager::FindMinValue(short pType)
 }
 short GameManager::IDGenerator(short pType)
 {
+	//변경 요망 현재 이벤트에 있는 값은 고려되지 않았다(조금 이상하게 해결)
 	short value = FindMinValue(pType);
 	if (value == 0)
 		return 0; // 오버플로우
@@ -133,7 +163,10 @@ void GameManager::SetColor(unsigned short pXR, unsigned short pGB, bool pIsMe)
 	if (pIsMe)
 		playerColor = (COLOR)((unsigned int)pXR << 16 | pGB);
 	else
-		opponentColor = (COLOR)((unsigned int)pXR << 16 | pGB);
+	{
+		if(opponentColor == 0)
+			opponentColor = (COLOR)((unsigned int)pXR << 16 | pGB);
+	}
 }
 void GameManager::SetPosition(short pID, short pPosX, short pPosY, short pDir)
 {
@@ -188,27 +221,61 @@ void GameManager::SendEventToNetwork(Event* evt)
 {
 	netManager->SendEvent(evt);
 }
+void GameManager::SetPlayer(Player* pPlayer)
+{
+	myPlayer = pPlayer;
+}
 Player* GameManager::GetPlayer()
 {
 	return myPlayer;
 }
-void GameManager::SetObjectAbility()
+void GameManager::SetGame()
 {
-	if (isHost)
+	if (!isAlreadySet)
 	{
-		//내용내용
 
-		//내용 보내기
-		/*LocalToEventManager(new Event(91, xxxxxxx));
-		SendEventToNetwork(new Event(91, xxxxxxx));
-		LocalToEventManager(new Event(92, xxxxxxx));
-		SendEventToNetwork(new Event(92, xxxxxxx));
-		LocalToEventManager(new Event(93, xxxxxxx));
-		SendEventToNetwork(new Event(93, xxxxxxx));
-		LocalToEventManager(new Event(94, xxxxxxx));
-		SendEventToNetwork(new Event(94, xxxxxxx));
-		LocalToEventManager(new Event(00, xxxxxxx));
-		SendEventToNetwork(new Event(00, xxxxxxx));*/
+		COLOR _myColor,_opponentColor;
+		//내용 읽고 저장하기
+
+		short var_1, var_2, var_3, var_4, var_5;
+		float tmp;
+
+		//내용 읽고 보내기
+		//Event 91 (Player) speed, maxgauge, charging speed, (f)blade delay
+
+		LocalToEventManager(new Event(91, var_1, var_2, var_3, var_4, var_5));
+		SendEventToNetwork(new Event(91, var_1, var_2, var_3, var_4, var_5));
+
+		//Event 92 (player) dashSpeed, (f)gaugeStopTime, (f)dashTime
+
+		LocalToEventManager(new Event(92, var_1, var_2, var_3, var_4, var_5));
+		SendEventToNetwork(new Event(92, var_1, var_2, var_3, var_4, var_5));
+
+		//Event 93 (Blade) min requirement, cost
+
+		LocalToEventManager(new Event(93, var_1, var_2, 0, 0, 0));
+		SendEventToNetwork(new Event(93, var_1, var_2, 0, 0, 0));
+
+		//Event 94 (Ball) (f)castingTime, (f)durationTime, cost
+
+		LocalToEventManager(new Event(94, var_1, var_2, var_3, var_4, var_5));
+		SendEventToNetwork(new Event(94, var_1, var_2, var_3, var_4, var_5));
+
+		//Event 95 (Missile) (f)durationTime, cost
+
+		LocalToEventManager(new Event(95, var_1, var_2, var_3, 0, 0));
+		SendEventToNetwork(new Event(95, var_1, var_2, var_3, 0, 0));
+
+		//Event 96 (Start Point) host X, host Y, Guest X, Guest Y
+
+		LocalToEventManager(new Event(96, var_1, var_2, var_3, var_4, 0));
+		SendEventToNetwork(new Event(96, var_1, var_2, var_3, var_4, 0));
+
+		//Event 00 (GameReady)
+		LocalToEventManager(new Event(00, 0, 0, 0, 0, 0));
+		SendEventToNetwork(new Event(00, 0, 0, 0, 0, 0));
+
+		isAlreadySet = true;
 	}
 }
 void GameManager::GameReady()
@@ -216,18 +283,64 @@ void GameManager::GameReady()
 	state = STATE::READY;
 
 	//리스트 초기화
+	ResetObjectList();
 	//이벤트 초기화
+	ResetEventList();
 
-	//SendEventToNetwork(new Event(01, xxxxxxx));
+	//상대에게 준비완료사태를 보냄
+	SendEventToNetwork(new Event(01, 0, 0, 0, 0, 0));
+}
+void GameManager::ResetObjectList()
+{
+	Object* obj;
+	for(;!objectList.empty();)
+	{
+		obj = objectList.front();
+		objectList.pop_front();
+		delete obj;
+	}
+	for(;!netObjectList.empty;)
+	{
+		obj = netObjectList.front();
+		netObjectList.pop_front();
+		delete obj;
+	}
+}
+void GameManger::ResetEventList()
+{
+	netManager->ResetEventList();
 }
 void GameManager::GameStart()
 {
 	state = STATE::GAMESTART;
 
-	//플레이어 생성		 Local
-
-	//LocalToEventManger(new Event(10,)) 
+	//플레이어 생성
+	Vector2D myPoint;
+	short id;
+	if(isHost)
+		myPoint = hostPoint;
+	else
+		myPoint = guestPoint;
+	id = IDGenerator(10);
+	LocalToEventManger(new Event(10, id, (short)myPoint.x, (short)myPoint.y, 0, 0));
 	//플레이어 생성이벤트 Network
+	SendEventToNetwork(new Event(20, id + 1000, (short)myPoint.x, (short)myPoint.y, (short)(playerColor>>16), (short)(playerColor)));
 
 	state = STATE::GAMING;
+}
+void GameManager::GameOver(bool pIsWin)
+{
+	if(pIsWin)
+		++win;
+	else
+		++lose;
+	if(state != STATE::GAMEOVER)
+	{
+		state = STATE::GAMEOVER;
+		SendEventToNetwork(new Event(00, 0, 0, 0, 0, 0));
+	}
+}
+bool GameManager::PlayerIsDied()
+{
+	return myPlayer->IsDied();
 }

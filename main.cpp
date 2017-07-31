@@ -10,7 +10,7 @@ LPCTSTR lpszClass = TEXT("NAFG");
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 	, LPSTR lpszCmdParam, int nCmdShow)
 {
-	
+
 	HWND hWnd;
 	MSG Message;
 	WNDCLASS WndClass;
@@ -71,6 +71,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 		}
 		else if (gm->state == STATE::READY)
 		{
+			//GAMESTART이벤트 받으려면 해야한다
 			gm->EventHandling();
 		}
 		else if (gm->state == STATE::GAMESTART)
@@ -88,10 +89,18 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 			gm->Update();
 			gm->Draw();
 
+			if(gm->PlayerIsDied())
+			{
+				//죽었으면 게임 오버 보냄
+				//Event 02 승리는 1 패배는 0
+				gm->LocalToEventManager(new Event(02,0,0,0,0,0));
+				gm->SendEventToNetwork(new Event(02,1,0,0,0,0));
+			}
 		}
 		else if (gm->state == STATE::GAMEOVER)
 		{
-
+			//READY이벤트 받으려면 해야한다
+			gm->EventHandling();
 		}
 		/*  프레임 유지  */
 		elapsedTime += timeGetTime() - startTime;
@@ -135,7 +144,7 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
-{	
+{
 	switch (iMessage)
 	{
 	case WM_CREATE:

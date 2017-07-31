@@ -37,17 +37,25 @@ private:
 	EventManager* evtManager;
 
 	std::mutex* evtMutex;
-	
+
 	Player* myPlayer;
-	
+
 	list<Object*> objectList;
 	list<Object*> netObjectList;
-	
+
 	COLOR playerColor;
 	COLOR opponentColor;
 
+	bool isAlreadySet;
+
+	short bladeIDNum;
+	short ballIDNum;
+	short missileIDNum;
+
 	GameManager();
 	short FindMinValue(short type); // use in IDGenerator()
+	void ResetObjectList(); //use in GameReady()
+	void ResetEventList();	//use in GameReady()
 public:
 	STATE state = STATE::INITAILIZING;
 	bool isHost;
@@ -78,9 +86,12 @@ public:
 	void EnterCriticalSection();		//동시 접근 제한 설정
 	void LeaveCriticalSection();		//동시 접근 제한 해제
 	void SendEventToNetwork(Event* evt);	//이벤트 소켓 전송
+	void SetPlayer(Player* player);
 	Player* GetPlayer();
-	void SetObjectAbility();
+	void SetGame();
 	void GameReady();
 	void GameStart();
+	void GameOver(bool isWin);
+	bool PlayerIsDied();
 	~GameManager();
 };

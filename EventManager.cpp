@@ -23,7 +23,7 @@ void EventManager::NetworkEventHandling()
 	Object* obj;
 	Event* evt;
 	gm->EnterCriticalSection();
-	
+
 	for (; !netEvtList.empty();)
 	{
 		evt = netEvtList.front();
@@ -33,7 +33,7 @@ void EventManager::NetworkEventHandling()
 		netEvtList.pop_front();
 		delete evt;
 	}
-	
+
 	gm->LeaveCriticalSection();
 }
 void EventManager::EventHandling()
@@ -66,6 +66,22 @@ void EventManager::MakeNetEvent(Event* pEvt)
 	gm->EnterCriticalSection();
 
 	netEvtList.push_back(pEvt);
-	
+
 	gm->LeaveCriticalSection();
+}
+void EventManager::ResetEventList()
+{
+	Event* evt;
+	for(;!evtList.empty();)
+	{
+		evt = evtList.front();
+		evtList.pop_front();
+		delete evt;
+	}
+	for(;!netEvtList.empty();)
+	{
+		evt = netEvtList.front();
+		netEvtList.pop_front();
+		delete evt;
+	}
 }
