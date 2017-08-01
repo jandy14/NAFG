@@ -62,10 +62,16 @@ void GameManager::NetInit(bool pIsHost, char* pIPAdress)
 void GameManager::Update()
 {
 	//all object's Update()
+	for (auto it = objectList.begin(); it != objectList.end(); ++it)
+		(*it)->Update();
+	for (auto it = netObjectList.begin(); it != netObjectList.end(); ++it)
+		(*it)->Update();
 }
 void GameManager::PhysicsUpdate()
 {
 	//only objectList's Physics()
+	for (auto it = objectList.begin(); it != objectList.end(); ++it)
+		(*it)->Physics();
 }
 void GameManager::Draw()
 {
@@ -113,6 +119,12 @@ void GameManager::Draw()
 		OldPen = (HPEN)SelectObject(hMemDC, hPen);
 		Ellipse(hMemDC, 50, 50, 100, 100);
 		DeleteObject(SelectObject(hMemDC, OldPen));
+
+		/*for (auto it = objectList.begin(); it != objectList.end(); ++it)
+			(*it)->Update();
+		for (auto it = netObjectList.begin(); it != netObjectList.end(); ++it)
+			(*it)->Update();*/
+
 		break;
 	case STATE::GAMEOVER:
 		SetTextAlign(hMemDC, TA_CENTER);
