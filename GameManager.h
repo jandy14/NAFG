@@ -56,6 +56,7 @@ private:
 	COLOR opponentColor;
 
 	bool isAlreadySet;
+	bool isNeedReady;
 
 	short bladeIDNum;
 	short ballIDNum;
@@ -68,7 +69,6 @@ private:
 public:
 	STATE state = STATE::INITAILIZING;
 	bool isHost;
-	bool isNeedReady;
 	unsigned int win, lose;
 	short bladeCost, ballCost, missileCost, dashCost;
 	short bladeMinRequirement;
@@ -109,4 +109,6 @@ public:
 	bool SpendGauge(short type);
 	HBITMAP GetBitMap();
 	~GameManager();
+	bool IsNeedReady() { return isNeedReady; }
+	void SetIsNeedReady(bool pIsNeedReady) { isNeedReady = pIsNeedReady; }
 };

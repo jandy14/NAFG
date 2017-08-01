@@ -13,7 +13,7 @@ Object* Event::EventProcess()
 	{
 	case 00:
 		gm->state = STATE::READY;
-		gm->isNeedReady = true;
+		gm->SetIsNeedReady(true);
 	case 01:
 		gm->GameStart();
 	case 02:

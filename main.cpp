@@ -73,10 +73,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 		else if (gm->state == STATE::READY)
 		{
 			//GAMESTART이벤트 받으려면 해야한다
-			if (gm->isNeedReady)
+			if (gm->IsNeedReady())
 			{
 				gm->GameReady();
-				gm->isNeedReady = false;
+				gm->SetIsNeedReady(false);
 			}
 			gm->EventHandling();
 		}
