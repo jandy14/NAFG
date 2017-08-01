@@ -15,6 +15,12 @@ namespace std
 {
 	class mutex;
 }
+
+struct HBITMAP__;
+struct HWND__;
+
+typedef HBITMAP__* HBITMAP;
+typedef HWND__* HWND;
 typedef unsigned int COLOR; //XXRRGGBB
 
 enum class STATE
@@ -36,13 +42,16 @@ private:
 	InputManager* inputManager;
 	EventManager* evtManager;
 
-	std::mutex* evtMutex;
+	std::mutex* evtMutex;	//critical section control
+
+	HWND hWnd;				//draw window handle
+	HBITMAP hBit;			//bitmap handle
 
 	Player* myPlayer;
 
 	list<Object*> objectList;
 	list<Object*> netObjectList;
-
+	
 	COLOR playerColor;
 	COLOR opponentColor;
 
@@ -59,6 +68,7 @@ private:
 public:
 	STATE state = STATE::INITAILIZING;
 	bool isHost;
+	bool isNeedReady;
 	unsigned int win, lose;
 	short bladeCost, ballCost, missileCost, dashCost;
 	short bladeMinRequirement;
@@ -68,7 +78,7 @@ public:
 	//초기 설정 값 변수
 
 	static GameManager* GetInstance();
-	void Initailize();									//게임 매니저 초기화
+	void Initailize(HWND hWnd);									//게임 매니저 초기화
 	void NetInit(bool isHost, char* ipAdress = "");		//네트워크 매니저 초기화
 	void Update();										//논리 업데이트
 	void PhysicsUpdate();								//물리 업데이트
@@ -97,5 +107,6 @@ public:
 	bool PlayerIsDied();
 	void DeleteDeadObject();
 	bool SpendGauge(short type);
+	HBITMAP GetBitMap();
 	~GameManager();
 };

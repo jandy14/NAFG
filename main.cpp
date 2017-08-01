@@ -73,6 +73,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 		else if (gm->state == STATE::READY)
 		{
 			//GAMESTART이벤트 받으려면 해야한다
+			if (gm->isNeedReady)
+			{
+				gm->GameReady();
+				gm->isNeedReady = false;
+			}
 			gm->EventHandling();
 		}
 		else if (gm->state == STATE::GAMESTART)
@@ -147,43 +152,54 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
+	HDC hdc, hMemDC;
+	PAINTSTRUCT ps;
+	HBITMAP oldBit;
+	RECT crt;
+
+	GameManager* gm = GameManager::GetInstance();
+
 	switch (iMessage)
 	{
 	case WM_CREATE:
 		//GameManager Init
-		GameManager::GetInstance()->Initailize();//게임매니저 생성및 초기화
-												 //인풋값 설정, 이벤트 리스트 초기화
+		gm->Initailize(hWnd);//게임매니저 생성및 초기화
+							 //인풋값 설정, 이벤트 리스트 초기화
 		return 0;
 	case WM_KEYDOWN:
-		{
-			GameManager* gm = GameManager::GetInstance();
-			if (gm->state == STATE::GAMING)
-				gm->KeyEvent(wParam, true);
-			return 0;
-		}
+
+		if (gm->state == STATE::GAMING)
+			gm->KeyEvent(wParam, true);
+		return 0;
+
 	case WM_KEYUP:
-		{
-			GameManager* gm = GameManager::GetInstance();
-			if (gm->state == STATE::GAMING)
-				gm->KeyEvent(wParam, false);
-			return 0;
-		}
+
+		if (gm->state == STATE::GAMING)
+			gm->KeyEvent(wParam, false);
+		return 0;
+
 	case WM_LBUTTONDOWN:
-		{
-			GameManager* gm = GameManager::GetInstance();
-			if (gm->state == STATE::GAMING)
-				gm->KeyEvent(01, false);
-			return 0;
-		}
+
+		if (gm->state == STATE::GAMING)
+			gm->KeyEvent(01, true);
+		return 0;
+
 	case WM_RBUTTONDOWN:
-		{
-			GameManager* gm = GameManager::GetInstance();
-			if (gm->state == STATE::GAMING)
-				gm->KeyEvent(02, false);
-			return 0;
-		}
-	/*case WM_PAINT:
-		return 0;*/
+
+		if (gm->state == STATE::GAMING)
+			gm->KeyEvent(02, true);
+		return 0;
+
+	case WM_PAINT:
+		hdc = BeginPaint(hWnd, &ps);
+		GetClientRect(hWnd, &crt);
+		hMemDC = CreateCompatibleDC(hdc);
+		oldBit = (HBITMAP)SelectObject(hMemDC, gm->GetBitMap());
+		BitBlt(hdc, 0, 0, crt.right, crt.bottom, hMemDC, 0, 0, SRCCOPY);
+		SelectObject(hMemDC, oldBit);
+		DeleteDC(hMemDC);
+		EndPaint(hWnd, &ps);
+		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;

@@ -5,7 +5,7 @@
 #include "EventManager.h"
 #include "NetworkManager.h"
 #include "Player.h"
-
+#include <Windows.h>
 GameManager* GameManager::GetInstance()
 {
 	if (!instance)
@@ -15,12 +15,26 @@ GameManager* GameManager::GetInstance()
 }
 GameManager::GameManager() { }
 
-void GameManager::Initailize()
+void GameManager::Initailize(HWND pHWnd)
 {
+	RECT crt;
+	HDC hdc;
+
+	hWnd = pHWnd;
+
+	GetClientRect(hWnd, &crt);
+	hdc = GetDC(hWnd);
+	if (hBit == NULL)
+	{
+		hBit = CreateCompatibleBitmap(hdc, crt.right, crt.bottom);
+	}
+
 	state = STATE::INITAILIZING;
 	win = lose = 0;
 	playerColor = 0;
 	opponentColor = 0;
+
+	isNeedReady = false;
 
 	bladeIDNum = 1;
 	ballIDNum = 1;
@@ -56,6 +70,63 @@ void GameManager::PhysicsUpdate()
 void GameManager::Draw()
 {
 	//all object's Draw()
+
+	RECT crt;
+	HDC hdc, hMemDC;
+	HBITMAP OldBit;
+	HPEN hPen, OldPen;
+
+	GetClientRect(hWnd, &crt);
+	hdc = GetDC(hWnd);
+
+	hMemDC = CreateCompatibleDC(hdc);
+	OldBit = (HBITMAP)SelectObject(hMemDC, hBit);
+
+	/* Start Draw */
+	
+	switch (state)
+	{
+	case STATE::INITAILIZING:
+		SetTextAlign(hMemDC, TA_CENTER);
+		TextOut(hMemDC, (crt.right / 2), (crt.bottom / 2), "INITAILIZING", 12);
+		break;
+	case STATE::WAITING:
+		SetTextAlign(hMemDC, TA_CENTER);
+		TextOut(hMemDC, (crt.right / 2), (crt.bottom / 2), "WAITING", 7);
+		break;
+	case STATE::SETTING:
+		SetTextAlign(hMemDC, TA_CENTER);
+		TextOut(hMemDC, (crt.right / 2), (crt.bottom / 2), "SETTING", 7);
+		break;
+	case STATE::READY:
+		SetTextAlign(hMemDC, TA_CENTER);
+		TextOut(hMemDC, (crt.right / 2), (crt.bottom / 2), "READY", 5);
+		break;
+	case STATE::GAMESTART:
+		SetTextAlign(hMemDC, TA_CENTER);
+		TextOut(hMemDC, (crt.right / 2), (crt.bottom / 2), "GAMESTART", 9);
+		break;
+	case STATE::GAMING:
+		FillRect(hMemDC, &crt, GetSysColorBrush(COLOR_WINDOW));
+
+		hPen = CreatePen(PS_INSIDEFRAME, 5, RGB(255, 0, 0));
+		OldPen = (HPEN)SelectObject(hMemDC, hPen);
+		Ellipse(hMemDC, 50, 50, 100, 100);
+		DeleteObject(SelectObject(hMemDC, OldPen));
+		break;
+	case STATE::GAMEOVER:
+		SetTextAlign(hMemDC, TA_CENTER);
+		TextOut(hMemDC, (crt.right / 2), (crt.bottom / 2), "GAMEOVER", 8);
+		break;
+	}
+
+	/* End Draw */
+
+	SelectObject(hMemDC, OldBit);
+	DeleteDC(hMemDC);
+	ReleaseDC(hWnd, hdc);
+
+	InvalidateRect(hWnd, NULL, FALSE);
 }
 void GameManager::KeyEvent(unsigned int pValue, bool pIsKeyDown)
 {
@@ -215,6 +286,39 @@ void GameManager::CollisionHandling(short pID)
 void GameManager::InsertList(Object* pObj, bool pIsLocal)
 {
 	//순서에 맞게 저장
+	//파라미터가 좀 쓸모가 없게 됐다.
+	if (pObj->GetID() / 100 == 20 || pObj->GetID() / 100 == 23)
+	{
+		if (netObjectList.begin() == netObjectList.end())
+		{
+			netObjectList.push_back(pObj);
+			return;
+		}
+		for (auto it = netObjectList.begin(); it != netObjectList.end(); ++it)
+		{
+			if (pObj->GetID() < (*it)->GetID())
+			{
+				netObjectList.insert(it, pObj);
+				return;
+			}
+		}
+	}
+	else
+	{
+		if (objectList.begin() == objectList.end())
+		{
+			objectList.push_back(pObj);
+			return;
+		}
+		for (auto it = objectList.begin(); it != objectList.end(); ++it)
+		{
+			if (pObj->GetID() < (*it)->GetID())
+			{
+				objectList.insert(it, pObj);
+				return;
+			}
+		}
+	}
 }
 void GameManager::EnterCriticalSection()
 {
@@ -240,7 +344,9 @@ void GameManager::SetGame()
 {
 	if (!isAlreadySet)
 	{
+
 		short var_1, var_2, var_3, var_4, var_5;
+		int v[5];
 		float tmp_1, tmp_2;
 		FILE* f;
 		fopen_s(&f, "GameSetting.txt", "rt");
@@ -254,44 +360,59 @@ void GameManager::SetGame()
 
 		//내용 읽고 보내기
 		//Event 91 (Player) speed, maxgauge, charging speed, (f)blade delay
-		fscanf_s(f, "%*s : %d\n%*s : %d\n%*s : %d\n%*s : %f\n", &var_1, &var_2, &var_3, &tmp_1);
-		var_4 = (*((unsigned int*)&tmp_1) >> 16) & 0xff;
-		var_5 = *((unsigned int*)&tmp_1) & 0xff;
+		fscanf_s(f, "%*s : %d\n%*s : %d\n%*s : %d\n%*s : %f\n", &v[0], &v[1], &v[2], &tmp_1);
+		var_1 = (short)v[0];
+		var_2 = (short)v[1];
+		var_3 = (short)v[2];
+		var_4 = (short)((*((unsigned int*)&tmp_1) >> 16) & 0xffff);
+		var_5 = (short)(*((unsigned int*)&tmp_1) & 0xffff);
 		LocalToEventManager(new Event(91, var_1, var_2, var_3, var_4, var_5));
 		SendEventToNetwork(new Event(91, var_1, var_2, var_3, var_4, var_5));
 
 		//Event 92 (player) dashSpeed, (f)gaugeStopTime, (f)dashTime
-		fscanf_s(f, "%*s : %d\n%*s : %f\n%*s : %f\n", &var_1, &tmp_1, &tmp_2);
-		var_2 = (*((unsigned int*)&tmp_1) >> 16) & 0xff;
-		var_3 = *((unsigned int*)&tmp_1) & 0xff;
-		var_4 = (*((unsigned int*)&tmp_2) >> 16) & 0xff;
-		var_5 = *((unsigned int*)&tmp_2) & 0xff;
+		fscanf_s(f, "%*s : %d\n%*s : %f\n%*s : %f\n", &v[0], &tmp_1, &tmp_2);
+		var_1 = (short)v[0];
+		var_2 = (short)((*((unsigned int*)&tmp_1) >> 16) & 0xffff);
+		var_3 = (short)(*((unsigned int*)&tmp_1) & 0xffff);
+		var_4 = (short)((*((unsigned int*)&tmp_2) >> 16) & 0xffff);
+		var_5 = (short)(*((unsigned int*)&tmp_2) & 0xffff);
 		LocalToEventManager(new Event(92, var_1, var_2, var_3, var_4, var_5));
 		SendEventToNetwork(new Event(92, var_1, var_2, var_3, var_4, var_5));
 
 		//Event 93 (Blade) min requirement, cost		&& DashCost
-		fscanf_s(f, "%*s : %d\n%*s : %d\n%*s : %d\n", &var_1, &var_2, &var_3);
+		fscanf_s(f, "%*s : %d\n%*s : %d\n%*s : %d\n", &v[0], &v[1], &v[2]);
+		var_1 = (short)v[0];
+		var_2 = (short)v[1];
+		var_3 = (short)v[2];
 		LocalToEventManager(new Event(93, var_1, var_2, var_3, 0, 0));
 		SendEventToNetwork(new Event(93, var_1, var_2, var_3, 0, 0));
 
 		//Event 94 (Ball) (f)castingTime, (f)durationTime, cost
-		fscanf_s(f, "%*s : %f\n%*s : %f\n%*s : %d\n", &tmp_1, &tmp_2, &var_5);
-		var_1 = (*((unsigned int*)&tmp_1) >> 16) & 0xff;
-		var_2 = *((unsigned int*)&tmp_1) & 0xff;
-		var_3 = (*((unsigned int*)&tmp_2) >> 16) & 0xff;
-		var_4 = *((unsigned int*)&tmp_2) & 0xff;
+		fscanf_s(f, "%*s : %f\n%*s : %f\n%*s : %d\n", &tmp_1, &tmp_2, &v[4]);
+		var_1 = (short)((*((unsigned int*)&tmp_1) >> 16) & 0xffff);
+		var_2 = (short)(*((unsigned int*)&tmp_1) & 0xffff);
+		var_3 = (short)((*((unsigned int*)&tmp_2) >> 16) & 0xffff);
+		var_4 = (short)(*((unsigned int*)&tmp_2) & 0xffff);
+		var_4 = (short)v[4];
 		LocalToEventManager(new Event(94, var_1, var_2, var_3, var_4, var_5));
 		SendEventToNetwork(new Event(94, var_1, var_2, var_3, var_4, var_5));
 
 		//Event 95 (Missile) (f)durationTime, speed, cost
-		fscanf_s(f, "%*s : %f\n%*s : %d\n%*s : %d\n", &tmp_1, &var_3, &var_4);
-		var_1 = (*((unsigned int*)&tmp_1) >> 16) & 0xff;
-		var_2 = *((unsigned int*)&tmp_1) & 0xff;
+		fscanf_s(f, "%*s : %f\n%*s : %d\n%*s : %d\n", &tmp_1, &v[2], &v[3]);
+		var_1 = (short)((*((unsigned int*)&tmp_1) >> 16) & 0xffff);
+		var_2 = (short)(*((unsigned int*)&tmp_1) & 0xffff);
+		var_3 = (short)v[2];
+		var_4 = (short)v[3];
 		LocalToEventManager(new Event(95, var_1, var_2, var_3, var_4, 0));
 		SendEventToNetwork(new Event(95, var_1, var_2, var_3, var_4, 0));
 
 		//Event 96 (Start Setting) host X, host Y, Guest X, Guest Y, StartGauge
-		fscanf_s(f, "%*s : %d\n%*s : %d\n%*s : %d\n%*s : %d\n%*s : %d", &var_1, &var_2, &var_3, &var_4, &var_5);
+		fscanf_s(f, "%*s : %d\n%*s : %d\n%*s : %d\n%*s : %d\n%*s : %d", &v[0], &v[1], &v[2], &v[3], &v[4]);
+		var_1 = (short)v[0];
+		var_2 = (short)v[1];
+		var_3 = (short)v[2];
+		var_4 = (short)v[3];
+		var_5 = (short)v[4];
 		LocalToEventManager(new Event(96, var_1, var_2, var_3, var_4, var_5));
 		SendEventToNetwork(new Event(96, var_1, var_2, var_3, var_4, var_5));
 
@@ -306,7 +427,6 @@ void GameManager::SetGame()
 }
 void GameManager::GameReady()
 {
-	state = STATE::READY;
 
 	//리스트 초기화
 	ResetObjectList();
@@ -436,5 +556,8 @@ bool GameManager::SpendGauge(short pType)
 	else
 		return false;
 }
-
+HBITMAP GameManager::GetBitMap()
+{
+	return hBit;
+}
 GameManager* GameManager::instance;

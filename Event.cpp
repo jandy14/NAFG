@@ -12,7 +12,8 @@ Object* Event::EventProcess()
 	switch (type)
 	{
 	case 00:
-		gm->GameReady();
+		gm->state = STATE::READY;
+		gm->isNeedReady = true;
 	case 01:
 		gm->GameStart();
 	case 02:
@@ -73,13 +74,13 @@ Object* Event::EventProcess()
 		break;
 	case 91:
 		//플레이어 설정
-		tmp = ((int)dir << 16) | tmpVar; //blade delay
+		tmp = ((int)dir << 16) | (tmpVar & 0xffff); //blade delay
 		//SetAbility(speed, maxgauge, charging speed, blade delay);
 		Player::SetAbility(id, posX, posY, *((float*)&tmp));
 		break;
 	case 92:
-		tmp = ((int)posX << 16) | posY; //gaugeStopTime
-		tmp2 = ((int)dir << 16) | tmpVar; //dashTime
+		tmp = ((int)posX << 16) | (posY & 0xffff); //gaugeStopTime
+		tmp2 = ((int)dir << 16) | (tmpVar & 0xffff); //dashTime
 		//SetAbility(dashSpeed, gaugeStopTime, dashTime) (overloading)
 		Player::SetAbility(id, *((float*)&tmp), *((float*)&tmp2));
 		break;
@@ -93,15 +94,15 @@ Object* Event::EventProcess()
 		break;
 	case 94:
 		//공 설정
-		tmp = ((int)id << 16) | posX; //castingTime
-		tmp2 = ((int)posY << 16) | dir; //durationTime
+		tmp = ((int)id << 16) | (posX & 0xffff); //castingTime
+		tmp2 = ((int)posY << 16) | (dir & 0xffff); //durationTime
 		//SetAbility(castingTime, durationTime);
 		Ball::SetAbility(*((float*)&tmp), *((float*)&tmp2));
 		gm->ballCost = tmpVar;
 		break;
 	case 95:
 		//포 설정
-		tmp = ((int)id << 16) | posX; //durationTime(LifeTime)
+		tmp = ((int)id << 16) | (posX & 0xffff); //durationTime(LifeTime)
 		Missile::SetAbility(*((float*)&tmp), posY);
 		gm->missileCost = dir;
 		break;

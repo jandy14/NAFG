@@ -1,7 +1,7 @@
 #pragma once
 #include <WinSock2.h>
 
-#define WINAPI __stdcall
+class GameManager;
 class Event;
 
 class NetworkManager

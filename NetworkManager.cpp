@@ -1,3 +1,4 @@
+#pragma warning(disable : 4996)
 #include <string.h>
 #include <thread>
 #include <WS2tcpip.h>
@@ -37,7 +38,7 @@ void NetworkManager::Initailize(bool pIsHost, char* pIPAdress)
 		memset(&servAddr, 0, sizeof(servAddr));
 		servAddr.sin_family = AF_INET;
 		//servAddr.sin_addr.s_addr = inet_addr(ipAdress);
-		servAddr.sin_addr.s_addr = inet_pton(AF_INET,ipAdress,&servAddr.sin_addr);
+		inet_pton(AF_INET,ipAdress,&servAddr.sin_addr);
 		servAddr.sin_port = htons(atoi("10001"));
 	}
 
@@ -74,7 +75,7 @@ void NetworkManager::ReceiveFunc()
 	while (1)
 	{
 		Event* evt = new Event();
-		recv(hClntSock, (char*)evt, sizeof(evt), 0);
+		recv(hClntSock, (char*)evt, sizeof(Event), 0);
 
 		/* if recv end, delete evt and break loop */
 		
