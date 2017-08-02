@@ -4,14 +4,14 @@ class Blade : public Object
 {
 private:
 	static short minRequirement;
-	float elapsedTime;
+	float elapsedTimer;
 public:
 	static void SetAbility(short minRequirement);
 	Blade(short id, Vector2D pos, short dir) : Object(id, pos, dir) { }
 	Blade(short id, short posX, short posY, short dir) : Object(id, posX, posY, dir) { }
 	virtual void Collide();
 	virtual void Update();
-	virtual void Draw();
+	virtual void Draw(HDC hdc);
 	virtual ~Blade() {}
 };
 
@@ -27,7 +27,7 @@ public:
 	Ball(short id, short posX, short posY, short dir) : Object(id, posX, posY, dir) { elapsedTimer = 0; }
 	virtual void Collide();
 	virtual void Update();
-	virtual void Draw();
+	virtual void Draw(HDC hdc);
 	virtual ~Ball() {}
 };
 
@@ -43,6 +43,6 @@ public:
 	Missile(short id, short posX, short posY, short dir) : Object(id, posX, posY, dir) { elapsedTimer = 0; }
 	virtual void Collide();
 	virtual void Update();
-	virtual void Draw();
+	virtual void Draw(HDC hdc);
 	virtual ~Missile() {}
 };

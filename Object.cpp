@@ -1,6 +1,11 @@
 #include "Object.h"
 #include "Setting.h"
-
+Object::Object()
+{
+	isAlive = true;
+	velocity.x = 0;
+	velocity.y = 0;
+}
 Object::Object(short pID, Vector2D pPos, short pDir)
 {
 	id = pID;
@@ -17,6 +22,8 @@ Object::Object(short pID, short pPosX, short pPosY, short pDir)
 	pos.y = pPosY;
 	dir = pDir;
 	isAlive = true;
+	velocity.x = 0;
+	velocity.y = 0;
 }
 bool Object::IsDead()
 {

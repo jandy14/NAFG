@@ -38,6 +38,6 @@ public:
 	void SetGauge(short value);
 	virtual void Collide();
 	virtual void Update();
-	virtual void Draw() {}
+	virtual void Draw(HDC hdc);
 	~Player() {}
 };

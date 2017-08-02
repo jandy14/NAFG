@@ -1,3 +1,4 @@
+#include <Windows.h>
 #include "Setting.h"
 #include "Player.h"
 #include "GameManager.h"
@@ -107,6 +108,10 @@ void Player::Update()
 		if (dashTimer < 0)
 			dashTimer = 0;
 	}
+}
+void Player::Draw(HDC pHdc)
+{
+	Ellipse(pHdc, pos.x - 20, pos.y - 20, pos.x + 20, pos.y + 20);
 }
 short Player::speed;
 short Player::dashSpeed;

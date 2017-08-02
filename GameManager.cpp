@@ -6,6 +6,7 @@
 #include "NetworkManager.h"
 #include "Player.h"
 #include <Windows.h>
+
 GameManager* GameManager::GetInstance()
 {
 	if (!instance)
@@ -62,16 +63,31 @@ void GameManager::NetInit(bool pIsHost, char* pIPAdress)
 void GameManager::Update()
 {
 	//all object's Update()
-	for (auto it = objectList.begin(); it != objectList.end(); ++it)
-		(*it)->Update();
-	for (auto it = netObjectList.begin(); it != netObjectList.end(); ++it)
-		(*it)->Update();
+	for (Object* o : objectList)
+		o->Update();
+	for (Object* o : netObjectList)
+		o->Update();
+	//for (auto it = objectList.begin(); it != objectList.end(); ++it)
+	//	(*it)->Update();
+	//for (auto it = netObjectList.begin(); it != netObjectList.end(); ++it)
+	//	(*it)->Update();
 }
 void GameManager::PhysicsUpdate()
 {
+	bool isMine = true;
 	//only objectList's Physics()
-	for (auto it = objectList.begin(); it != objectList.end(); ++it)
-		(*it)->Physics();
+	for (Object* o : objectList)
+	{
+		o->Physics();
+
+		if (isMine)
+		{
+			if (o->GetID() > 2000)
+				isMine = false;
+			else if(o->GetID() / 100 == 10 || o->GetID() / 100 == 13)
+				SendEventToNetwork(new Event(31, o->GetID() + 1000, o->pos.x, o->pos.y, o->dir, 0));
+		}
+	}
 }
 void GameManager::Draw()
 {
@@ -79,17 +95,20 @@ void GameManager::Draw()
 
 	RECT crt;
 	HDC hdc, hMemDC;
-	HBITMAP OldBit;
-	HPEN hPen, OldPen;
+	HBITMAP oldBit;
+	HPEN hPen, oldPen;
+	HBRUSH hBrush, oldBrush;
+	bool isEnemy = false;
 
 	GetClientRect(hWnd, &crt);
 	hdc = GetDC(hWnd);
 
 	hMemDC = CreateCompatibleDC(hdc);
-	OldBit = (HBITMAP)SelectObject(hMemDC, hBit);
+	oldBit = (HBITMAP)SelectObject(hMemDC, hBit);
 
 	/* Start Draw */
-	
+	FillRect(hMemDC, &crt, GetSysColorBrush(COLOR_WINDOW));
+
 	switch (state)
 	{
 	case STATE::INITAILIZING:
@@ -113,17 +132,42 @@ void GameManager::Draw()
 		TextOut(hMemDC, (crt.right / 2), (crt.bottom / 2), "GAMESTART", 9);
 		break;
 	case STATE::GAMING:
-		FillRect(hMemDC, &crt, GetSysColorBrush(COLOR_WINDOW));
 
-		hPen = CreatePen(PS_INSIDEFRAME, 5, RGB(255, 0, 0));
-		OldPen = (HPEN)SelectObject(hMemDC, hPen);
-		Ellipse(hMemDC, 50, 50, 100, 100);
-		DeleteObject(SelectObject(hMemDC, OldPen));
+		hPen = CreatePen(PS_INSIDEFRAME, 2, RGB(0,0,0));
+		hBrush = CreateSolidBrush(RGB(playerColor >> 16 & 0xff, playerColor >> 8 & 0xff, playerColor & 0xff));
+		oldPen = (HPEN)SelectObject(hMemDC, hPen);
+		oldBrush = (HBRUSH)SelectObject(hMemDC, hBrush);
+		for (Object* o : objectList)
+		{
+			if (!isEnemy)
+			{
+				if (o->GetID() > 2000)
+				{
+					DeleteObject(SelectObject(hMemDC, oldBrush));
+					hBrush = CreateSolidBrush(RGB(opponentColor >> 16 & 0xff, opponentColor >> 8 & 0xff, opponentColor & 0xff));
+					oldBrush = (HBRUSH)SelectObject(hMemDC, hBrush);
+					isEnemy = true;
+				}
+			}
+			o->Draw(hMemDC);
+		}
+		if (!isEnemy)
+		{
+			DeleteObject(SelectObject(hMemDC, oldBrush));
+			hBrush = CreateSolidBrush(RGB(opponentColor >> 16 & 0xff, opponentColor >> 8 & 0xff, opponentColor & 0xff));
+			oldBrush = (HBRUSH)SelectObject(hMemDC, hBrush);
+			isEnemy = true;
+		}
+		for (Object* o : netObjectList)
+			o->Draw(hMemDC);
 
-		/*for (auto it = objectList.begin(); it != objectList.end(); ++it)
-			(*it)->Update();
-		for (auto it = netObjectList.begin(); it != netObjectList.end(); ++it)
-			(*it)->Update();*/
+		DeleteObject(SelectObject(hMemDC, oldBrush));
+		DeleteObject(SelectObject(hMemDC, oldPen));
+
+		SetTextAlign(hMemDC, TA_LEFT);
+		char gauge[5];
+		_itoa_s(myPlayer->GetGauge(), gauge, 10);
+		TextOut(hMemDC, 0, 0, gauge, 4);
 
 		break;
 	case STATE::GAMEOVER:
@@ -134,7 +178,7 @@ void GameManager::Draw()
 
 	/* End Draw */
 
-	SelectObject(hMemDC, OldBit);
+	SelectObject(hMemDC, oldBit);
 	DeleteDC(hMemDC);
 	ReleaseDC(hWnd, hdc);
 
@@ -314,6 +358,8 @@ void GameManager::InsertList(Object* pObj, bool pIsLocal)
 				return;
 			}
 		}
+		netObjectList.push_back(pObj);
+		return;
 	}
 	else
 	{
@@ -330,6 +376,8 @@ void GameManager::InsertList(Object* pObj, bool pIsLocal)
 				return;
 			}
 		}
+		objectList.push_back(pObj);
+		return;
 	}
 }
 void GameManager::EnterCriticalSection()
@@ -368,8 +416,16 @@ void GameManager::SetGame()
 		fscanf_s(f, "%*s : %x\n%*s : %x\n", &_myColor, &_opponentColor);
 		if (_opponentColor >= 0x1000000)
 			opponentColor = 0;
+		else
+			opponentColor = _opponentColor;
 		playerColor = _myColor;
 
+		if (!isHost)
+		{
+			fclose(f);
+			isAlreadySet = true;
+			return;
+		}
 		//내용 읽고 보내기
 		//Event 91 (Player) speed, maxgauge, charging speed, (f)blade delay
 		fscanf_s(f, "%*s : %d\n%*s : %d\n%*s : %d\n%*s : %f\n", &v[0], &v[1], &v[2], &tmp_1);
@@ -405,7 +461,7 @@ void GameManager::SetGame()
 		var_2 = (short)(*((unsigned int*)&tmp_1) & 0xffff);
 		var_3 = (short)((*((unsigned int*)&tmp_2) >> 16) & 0xffff);
 		var_4 = (short)(*((unsigned int*)&tmp_2) & 0xffff);
-		var_4 = (short)v[4];
+		var_5 = (short)v[4];
 		LocalToEventManager(new Event(94, var_1, var_2, var_3, var_4, var_5));
 		SendEventToNetwork(new Event(94, var_1, var_2, var_3, var_4, var_5));
 
@@ -444,9 +500,6 @@ void GameManager::GameReady()
 	ResetObjectList();
 	//이벤트 초기화
 	ResetEventList();
-
-	//상대에게 준비완료사태를 보냄
-	SendEventToNetwork(new Event(01, 0, 0, 0, 0, 0));
 }
 void GameManager::ResetObjectList()
 {
@@ -472,14 +525,16 @@ void GameManager::GameStart()
 {
 	state = STATE::GAMESTART;
 
-	//플레이어 생성
+	myPlayer = nullptr;
 	Vector2D myPoint;
 	short id;
 	if(isHost)
 		myPoint = hostPoint;
 	else
 		myPoint = guestPoint;
+
 	id = IDGenerator(10);
+	//플레이어 생성
 	LocalToEventManager(new Event(10, id, (short)myPoint.x, (short)myPoint.y, 0, 0));
 	//플레이어 생성이벤트 Network
 	SendEventToNetwork(new Event(20, id + 1000, (short)myPoint.x, (short)myPoint.y, (short)(playerColor>>16), (short)(playerColor)));
@@ -500,6 +555,8 @@ void GameManager::GameOver(bool pIsWin)
 }
 bool GameManager::PlayerIsDied()
 {
+	if (myPlayer == nullptr)
+		return false;
 	return myPlayer->IsDead();
 }
 void GameManager::DeleteDeadObject()
@@ -516,7 +573,9 @@ void GameManager::DeleteDeadObject()
 			//delete *it;
 			//objectList.remove(*it);
 			Object* obj = *it;
-			objectList.remove(*it);
+			auto iter = it;
+			--it;
+			objectList.remove(*iter);
 			delete obj;
 		}
 	}
@@ -528,6 +587,8 @@ void GameManager::DeleteDeadObject()
 		if ((*it)->IsDead())
 		{
 			Object* obj = *it;
+			auto iter = it;
+			--it;
 			netObjectList.remove(*it);
 			delete obj;
 		}

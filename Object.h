@@ -1,6 +1,9 @@
 #pragma once
 #include "Vector2D.h"
 
+struct HDC__;
+typedef HDC__* HDC;
+
 class Object
 {
 protected:
@@ -13,7 +16,7 @@ public:
 	Vector2D pos;		//윈도우에서의 위치
 	short dir;			//바라보는 방향
 
-	Object() {}
+	Object();
 	Object(short id, Vector2D pos, short dir);
 	Object(short id, short posX, short posY, short dir);
 	void Physics();
@@ -23,6 +26,6 @@ public:
 	virtual bool IsDead();
 	virtual void Collide() = 0;
 	virtual void Update() = 0;
-	virtual void Draw() = 0;
+	virtual void Draw(HDC hdc) = 0;
 	~Object() { }
 };

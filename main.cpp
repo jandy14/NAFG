@@ -64,8 +64,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 		}
 		else if (gm->state == STATE::SETTING)
 		{
-			if (gm->isHost)
-				gm->SetGame();
+			gm->SetGame();
 
 			gm->EventHandling();
 			gm->Draw();
@@ -78,11 +77,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 				gm->GameReady();
 				gm->SetIsNeedReady(false);
 			}
+			gm->SendEventToNetwork(new Event(01, 0, 0, 0, 0, 0));
 			gm->EventHandling();
 		}
 		else if (gm->state == STATE::GAMESTART)
 		{
-
+			gm->Draw();
 		}
 		else if (gm->state == STATE::GAMING)
 		{
@@ -108,6 +108,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 		{
 			//READY이벤트 받으려면 해야한다
 			gm->EventHandling();
+			gm->Draw();
 		}
 		/*  프레임 유지  */
 		elapsedTime += timeGetTime() - startTime;

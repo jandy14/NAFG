@@ -1,14 +1,14 @@
 PlayerColor : FF0000
 OpponentColor : 1000000
-PlayerSpeed : 50
+PlayerSpeed : 100
 PlayerMaxGauge : 300
 PlayerChargingSpeed : 30
 BladeDelay : 0.3
-PlayerDashSpeed : 100
+PlayerDashSpeed : 170
 GaugeStopTime : 0.5
 PlayerDashTime : 1.0
 BladeMinRequirement : 100
-BladeCost : 0
+BladeCost : 70
 DashCost : 50
 BallCastingTime : 1.0
 BallDurationTime : 1.0

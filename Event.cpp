@@ -14,14 +14,17 @@ Object* Event::EventProcess()
 	case 00:
 		gm->state = STATE::READY;
 		gm->SetIsNeedReady(true);
+		break;
 	case 01:
-		gm->GameStart();
+		if(gm->state == STATE::READY)
+			gm->GameStart();
+		break;
 	case 02:
 		gm->GameOver((id == 1) ? true : false);
-
+		break;
 	case 10:
 		//³ª
-		obj = new Player(1001, Vector2D(posX, posY));
+		obj = new Player(id, Vector2D(posX, posY));
 		gm->SetPlayer((Player*)obj);
 		break;
 	case 11:
@@ -41,7 +44,7 @@ Object* Event::EventProcess()
 		break;
 	case 20:
 		//»ó´ë
-		obj = new Player(2001, Vector2D(posX, posY));
+		obj = new Player(id, Vector2D(posX, posY));
 		gm->SetColor(dir, tmpVar, false);
 		break;
 	case 21:

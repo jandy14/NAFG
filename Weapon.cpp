@@ -1,3 +1,5 @@
+#include <Windows.h>
+#include "Setting.h"
 #include "Weapon.h"
 
 void Blade::SetAbility(short pMinRequirement)
@@ -6,13 +8,16 @@ void Blade::SetAbility(short pMinRequirement)
 }
 void Blade::Collide()
 {
+	elapsedTimer += (1.0 / FPS);
 
+	if (elapsedTimer > 0.1f)
+		isAlive = false;
 }
 void Blade::Update()
 {
 
 }
-void Blade::Draw()
+void Blade::Draw(HDC pHdc)
 {
 
 }
@@ -27,11 +32,14 @@ void Ball::Collide()
 }
 void Ball::Update()
 {
+	elapsedTimer += (1.0/FPS);
 
+	if (elapsedTimer > castingTime + durationTime)
+		isAlive = false;
 }
-void Ball::Draw()
+void Ball::Draw(HDC pHdc)
 {
-
+	Ellipse(pHdc, pos.x - 10, pos.y - 10, pos.x + 10, pos.y + 10);
 }
 void Missile::SetAbility(float pDurationTime, short pSpeed)
 {
@@ -44,9 +52,12 @@ void Missile::Collide()
 }
 void Missile::Update()
 {
+	elapsedTimer += (1.0 / FPS);
 
+	if (elapsedTimer > durationTime)
+		isAlive = false;
 }
-void Missile::Draw()
+void Missile::Draw(HDC pHdc)
 {
 
 }
