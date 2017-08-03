@@ -165,10 +165,12 @@ void GameManager::Draw()
 		DeleteObject(SelectObject(hMemDC, oldPen));
 
 		SetTextAlign(hMemDC, TA_LEFT);
-		char gauge[5];
-		_itoa_s(myPlayer->GetGauge(), gauge, 10);
-		TextOut(hMemDC, 0, 0, gauge, 4);
-
+		if (myPlayer != nullptr)
+		{
+			char gauge[5];
+			_itoa_s(myPlayer->GetGauge(), gauge, 10);
+			TextOut(hMemDC, 0, 0, gauge, 4);
+		}
 		break;
 	case STATE::GAMEOVER:
 		SetTextAlign(hMemDC, TA_CENTER);
@@ -539,6 +541,8 @@ void GameManager::GameStart()
 	//플레이어 생성이벤트 Network
 	SendEventToNetwork(new Event(20, id + 1000, (short)myPoint.x, (short)myPoint.y, (short)(playerColor>>16), (short)(playerColor)));
 
+	SendEventToNetwork(new Event(01, 0, 0, 0, 0, 0));
+
 	state = STATE::GAMING;
 }
 void GameManager::GameOver(bool pIsWin)
@@ -632,5 +636,11 @@ bool GameManager::SpendGauge(short pType)
 HBITMAP GameManager::GetBitMap()
 {
 	return hBit;
+}
+void GameManager::SetDir(short pX, short pY)
+{
+	if (myPlayer == nullptr)
+		return;
+	myPlayer->SetLookPoint(Vector2D(pX, pY));
 }
 GameManager* GameManager::instance;

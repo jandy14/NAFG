@@ -75,7 +75,8 @@ void NetworkManager::ReceiveFunc()
 	while (1)
 	{
 		Event* evt = new Event();
-		recv(hClntSock, (char*)evt, sizeof(Event), 0);
+		if (recv(hClntSock, (char*)evt, sizeof(Event), 0) == -1)
+			break;
 
 		/* if recv end, delete evt and break loop */
 		

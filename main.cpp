@@ -77,8 +77,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 				gm->GameReady();
 				gm->SetIsNeedReady(false);
 			}
-			gm->SendEventToNetwork(new Event(01, 0, 0, 0, 0, 0));
-			gm->EventHandling();
+			if (!gm->IsNeedReady())
+			{
+				gm->SendEventToNetwork(new Event(01, 0, 0, 0, 0, 0));
+				gm->EventHandling();
+			}
 		}
 		else if (gm->state == STATE::GAMESTART)
 		{
@@ -190,7 +193,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		if (gm->state == STATE::GAMING)
 			gm->KeyEvent(02, true);
 		return 0;
-
+	case WM_MOUSEMOVE:
+		if (gm->state == STATE::GAMING)
+			gm->SetDir(LOWORD(lParam), HIWORD(lParam));
+		return 0;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		GetClientRect(hWnd, &crt);

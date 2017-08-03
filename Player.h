@@ -26,6 +26,7 @@ private:
 	float delayTimer;
 	float dashTimer;
 	bool isUp, isDown, isLeft, isRight;
+	Vector2D lookPoint;
 public:
 	Player(short id, Vector2D pos);
 	static void SetAbility(short speed, short maxGauge, short chargingSpeed, float bladeDelay);
@@ -36,6 +37,9 @@ public:
 	void BladeDelay() { delayTimer = bladeDelay; }
 	short GetGauge() { return gauge; }
 	void SetGauge(short value);
+	void SetLookDir(short pDir) { dir = pDir; }
+	void SetLookPoint(Vector2D point) { lookPoint = point; }
+
 	virtual void Collide();
 	virtual void Update();
 	virtual void Draw(HDC hdc);

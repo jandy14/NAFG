@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <math.h>
 #include "Setting.h"
 #include "Player.h"
 #include "GameManager.h"
@@ -11,6 +12,8 @@ Player::Player(short pID, Vector2D pPos)
 	isUp = isDown = isLeft = isRight = false;
 	gauge = GameManager::GetInstance()->startGauge;
 	gaugeFraction = 0.0f;
+	lookPoint.x = 0;
+	lookPoint.y = 0;
 }
 
 void Player::SetAbility(short pSpeed, short pMaxGauge, short pChargingSpeed, float pBladeDelay)
@@ -18,7 +21,7 @@ void Player::SetAbility(short pSpeed, short pMaxGauge, short pChargingSpeed, flo
 	speed = pSpeed;
 	maxGauge = pMaxGauge;
 	chargingSpeed = pChargingSpeed;
-	Player::bladeDelay = pBladeDelay;
+	bladeDelay = pBladeDelay;
 }
 void Player::SetAbility(short pDashSpeed, float pGaugeStopTime, float pDashTime)
 {
@@ -59,6 +62,9 @@ void Player::Collide()
 }
 void Player::Update()
 {
+	if (id > 2000)
+		return;
+
 	Vector2D _vel(0.0f,0.0f);
 	
 	if (isUp)
@@ -74,6 +80,8 @@ void Player::Update()
 		velocity = _vel.Normalize() * speed;
 	else
 		velocity = _vel.Normalize() * dashSpeed;
+
+	SetLookDir(pos.Direction(lookPoint));
 
 	if (gauge < maxGauge)
 	{
@@ -111,6 +119,8 @@ void Player::Update()
 }
 void Player::Draw(HDC pHdc)
 {
+	MoveToEx(pHdc, pos.x, pos.y, NULL);
+	LineTo(pHdc, pos.x + cos(dir * PI / 180) * (20 + 5), pos.y - sin(dir * PI / 180) * (20 + 5));
 	Ellipse(pHdc, pos.x - 20, pos.y - 20, pos.x + 20, pos.y + 20);
 }
 short Player::speed;

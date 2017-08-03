@@ -111,4 +111,5 @@ public:
 	~GameManager();
 	bool IsNeedReady() { return isNeedReady; }
 	void SetIsNeedReady(bool pIsNeedReady) { isNeedReady = pIsNeedReady; }
+	void SetDir(short x, short y);
 };

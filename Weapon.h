@@ -7,8 +7,8 @@ private:
 	float elapsedTimer;
 public:
 	static void SetAbility(short minRequirement);
-	Blade(short id, Vector2D pos, short dir) : Object(id, pos, dir) { }
-	Blade(short id, short posX, short posY, short dir) : Object(id, posX, posY, dir) { }
+	Blade(short id, Vector2D pos, short dir) : Object(id, pos, dir) { elapsedTimer = 0.0f; }
+	Blade(short id, short posX, short posY, short dir) : Object(id, posX, posY, dir) { elapsedTimer = 0.0f; }
 	virtual void Collide();
 	virtual void Update();
 	virtual void Draw(HDC hdc);
@@ -23,8 +23,8 @@ private:
 	float elapsedTimer;
 public:
 	static void SetAbility(float castingTime, float durationTime);
-	Ball(short id, Vector2D pos, short dir) : Object(id, pos, dir) { elapsedTimer = 0; }
-	Ball(short id, short posX, short posY, short dir) : Object(id, posX, posY, dir) { elapsedTimer = 0; }
+	Ball(short id, Vector2D pos, short dir) : Object(id, pos, dir) { elapsedTimer = 0.0f; }
+	Ball(short id, short posX, short posY, short dir) : Object(id, posX, posY, dir) { elapsedTimer = 0.0f; }
 	virtual void Collide();
 	virtual void Update();
 	virtual void Draw(HDC hdc);
@@ -39,8 +39,8 @@ private:
 	float elapsedTimer;
 public:
 	static void SetAbility(float durationTime, short speed);
-	Missile(short id, Vector2D pos, short dir) : Object(id, pos, dir) { elapsedTimer = 0; }
-	Missile(short id, short posX, short posY, short dir) : Object(id, posX, posY, dir) { elapsedTimer = 0; }
+	Missile(short id, Vector2D pos, short dir) : Object(id, pos, dir) { elapsedTimer = 0.0f; }
+	Missile(short id, short posX, short posY, short dir) : Object(id, posX, posY, dir) { elapsedTimer = 0.0f; }
 	virtual void Collide();
 	virtual void Update();
 	virtual void Draw(HDC hdc);

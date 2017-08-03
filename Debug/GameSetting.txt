@@ -8,7 +8,7 @@ PlayerDashSpeed : 170
 GaugeStopTime : 0.5
 PlayerDashTime : 1.0
 BladeMinRequirement : 100
-BladeCost : 70
+BladeCost : 0
 DashCost : 50
 BallCastingTime : 1.0
 BallDurationTime : 1.0
