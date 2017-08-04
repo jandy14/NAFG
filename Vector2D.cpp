@@ -32,6 +32,10 @@ short Vector2D::Direction(Vector2D pTarget)
 {
 	return Direction(pTarget.x, pTarget.y);
 }
+float Vector2D::Distance(Vector2D pTarget)
+{
+	return sqrt(pow(pTarget.x - x, 2) + pow(pTarget.y - y, 2));
+}
 Vector2D Vector2D::operator*(short pValue)
 {
 	return Vector2D(x*pValue, y*pValue);

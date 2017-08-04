@@ -100,6 +100,7 @@ public:
 	void SendEventToNetwork(Event* evt);	//이벤트 소켓 전송
 	void SetPlayer(Player* player);
 	Player* GetPlayer();
+	Object* GetOpponent();
 	void SetGame();
 	void GameReady();
 	void GameStart();
@@ -112,4 +113,7 @@ public:
 	bool IsNeedReady() { return isNeedReady; }
 	void SetIsNeedReady(bool pIsNeedReady) { isNeedReady = pIsNeedReady; }
 	void SetDir(short x, short y);
+	bool IsCrash(Vector2D myPos, short mySize, Vector2D targetPos, short targetSize);
+	bool IsCrash(Vector2D myPos, short mySize, Vector2D startPoint, Vector2D endPoint);
+	bool IsCrash(Vector2D myPos, short mySize, Vector2D targetPos, short targetSize, short targetDir);
 };

@@ -39,7 +39,7 @@ public:
 	void SetGauge(short value);
 	void SetLookDir(short pDir) { dir = pDir; }
 	void SetLookPoint(Vector2D point) { lookPoint = point; }
-
+	short GetMaxGauge() { return maxGauge; }
 	virtual void Collide();
 	virtual void Update();
 	virtual void Draw(HDC hdc);

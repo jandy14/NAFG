@@ -83,7 +83,7 @@ void Player::Update()
 
 	SetLookDir(pos.Direction(lookPoint));
 
-	if (gauge < maxGauge)
+	if (gauge < maxGauge && gaugeStopTimer == 0)
 	{
 		gaugeFraction += (chargingSpeed * (1.0 / FPS));
 		if (gaugeFraction > 1)
@@ -119,6 +119,30 @@ void Player::Update()
 }
 void Player::Draw(HDC pHdc)
 {
+	HPEN hPen, oldPen;
+
+	if (gauge == maxGauge)
+	{
+		hPen = hPen = CreatePen(PS_INSIDEFRAME, 4, RGB(255, 0, 180));
+		oldPen = (HPEN)SelectObject(pHdc, hPen);
+		Ellipse(pHdc, pos.x - 23, pos.y - 23, pos.x + 23, pos.y + 23);
+		DeleteObject(SelectObject(pHdc, oldPen));
+	}
+	else if (gauge > maxGauge * 2 / 3)
+	{
+		hPen = hPen = CreatePen(PS_INSIDEFRAME, 4, RGB(255, 0, 0));
+		oldPen = (HPEN)SelectObject(pHdc, hPen);
+		Ellipse(pHdc, pos.x - 23, pos.y - 23, pos.x + 23, pos.y + 23);
+		DeleteObject(SelectObject(pHdc, oldPen));
+	}
+	else if (gauge > maxGauge / 3)
+	{
+		hPen = hPen = CreatePen(PS_INSIDEFRAME, 4, RGB(255, 127, 0));
+		oldPen = (HPEN)SelectObject(pHdc, hPen);
+		Ellipse(pHdc, pos.x - 23, pos.y - 23, pos.x + 23, pos.y + 23);
+		DeleteObject(SelectObject(pHdc, oldPen));
+	}
+
 	MoveToEx(pHdc, pos.x, pos.y, NULL);
 	LineTo(pHdc, pos.x + cos(dir * PI / 180) * (20 + 5), pos.y - sin(dir * PI / 180) * (20 + 5));
 	Ellipse(pHdc, pos.x - 20, pos.y - 20, pos.x + 20, pos.y + 20);

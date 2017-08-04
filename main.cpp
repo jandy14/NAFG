@@ -32,7 +32,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 		RegisterClass(&WndClass);
 
 		hWnd = CreateWindow(lpszClass, lpszClass, WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU
-			, CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, NULL
+			, CW_USEDEFAULT, CW_USEDEFAULT, 800, 650, NULL
 			, (HMENU)NULL, hInstance, NULL);
 		ShowWindow(hWnd, nCmdShow);
 	}

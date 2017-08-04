@@ -14,7 +14,7 @@ BallCastingTime : 1.0
 BallDurationTime : 1.0
 BallCost : 50
 MissileLifeTime : 5.0
-MissileSpeed : 30
+MissileSpeed : 90
 MissileCost : 100
 HostStartPointX : 50
 HostStartPointY : 50

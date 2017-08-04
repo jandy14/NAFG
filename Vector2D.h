@@ -12,6 +12,7 @@ public:
 	Vector2D Normalize();
 	short Direction(short x, short y);
 	short Direction(Vector2D target);
+	float Distance(Vector2D target);
 	Vector2D operator*(short);
 	Vector2D operator*(float);
 };

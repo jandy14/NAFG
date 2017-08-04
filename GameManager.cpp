@@ -5,6 +5,7 @@
 #include "EventManager.h"
 #include "NetworkManager.h"
 #include "Player.h"
+#include "Weapon.h"
 #include <Windows.h>
 
 GameManager* GameManager::GetInstance()
@@ -29,6 +30,7 @@ void GameManager::Initailize(HWND pHWnd)
 	{
 		hBit = CreateCompatibleBitmap(hdc, crt.right, crt.bottom);
 	}
+	Object::SetViewSize(crt.right, crt.bottom);
 
 	state = STATE::INITAILIZING;
 	win = lose = 0;
@@ -74,19 +76,19 @@ void GameManager::Update()
 }
 void GameManager::PhysicsUpdate()
 {
-	bool isMine = true;
-	//only objectList's Physics()
+	//only objectList's Physics() detail : myPlayer blade ball missile opponentBlade
 	for (Object* o : objectList)
 	{
+
+		if (o->GetID() > 2200)
+			break;
+
 		o->Physics();
 
-		if (isMine)
-		{
-			if (o->GetID() > 2000)
-				isMine = false;
-			else if(o->GetID() / 100 == 10 || o->GetID() / 100 == 13)
-				SendEventToNetwork(new Event(31, o->GetID() + 1000, o->pos.x, o->pos.y, o->dir, 0));
-		}
+		if (o->GetID() / 100 == 10)
+			SendEventToNetwork(new Event(31, o->GetID() + 1000, o->pos.x, o->pos.y, o->dir, ((Player*)o)->GetGauge()));
+		if (o->GetID() / 100 == 13)
+			SendEventToNetwork(new Event(31, o->GetID() + 1000, o->pos.x, o->pos.y, o->dir, 0));
 	}
 }
 void GameManager::Draw()
@@ -164,12 +166,52 @@ void GameManager::Draw()
 		DeleteObject(SelectObject(hMemDC, oldBrush));
 		DeleteObject(SelectObject(hMemDC, oldPen));
 
-		SetTextAlign(hMemDC, TA_LEFT);
+		/*hud*/
+		char score[19];
+		sprintf_s(score, "win : %02d lose : %02d", win, lose);
+		SetTextAlign(hMemDC, TA_CENTER);
+		TextOut(hMemDC, (crt.right / 2), 20, score, 18);
+
 		if (myPlayer != nullptr)
 		{
-			char gauge[5];
-			_itoa_s(myPlayer->GetGauge(), gauge, 10);
-			TextOut(hMemDC, 0, 0, gauge, 4);
+			short max = myPlayer->GetMaxGauge();
+
+			hBrush = CreateSolidBrush(RGB(255, 255, 255));
+			oldBrush = (HBRUSH)SelectObject(hMemDC, hBrush);
+			Rectangle(hMemDC, crt.right - 110, 10, crt.right - 10, 40);
+			DeleteObject(SelectObject(hMemDC, oldBrush));
+			int gauge = myPlayer->GetGauge();
+			if (gauge <= max/3)
+			{
+				hBrush = CreateSolidBrush(RGB(255, 127, 0));
+				oldBrush = (HBRUSH)SelectObject(hMemDC, hBrush);
+				Rectangle(hMemDC, crt.right - 110, 10, crt.right - 110 + ((float)gauge/max)*300, 40);
+				DeleteObject(SelectObject(hMemDC, oldBrush));
+			}
+			else if (gauge <= max*2/3)
+			{
+				hBrush = CreateSolidBrush(RGB(255, 127, 0));
+				oldBrush = (HBRUSH)SelectObject(hMemDC, hBrush);
+				Rectangle(hMemDC, crt.right - 110, 10, crt.right - 10, 40);
+				DeleteObject(SelectObject(hMemDC, oldBrush));
+
+				hBrush = CreateSolidBrush(RGB(255, 0, 0));
+				oldBrush = (HBRUSH)SelectObject(hMemDC, hBrush);
+				Rectangle(hMemDC, crt.right - 110, 10, crt.right - 110 + ((float)gauge/max)*300 - 100, 40);
+				DeleteObject(SelectObject(hMemDC, oldBrush));
+			}
+			else
+			{
+				hBrush = CreateSolidBrush(RGB(255, 0, 0));
+				oldBrush = (HBRUSH)SelectObject(hMemDC, hBrush);
+				Rectangle(hMemDC, crt.right - 110, 10, crt.right - 10, 40);
+				DeleteObject(SelectObject(hMemDC, oldBrush));
+
+				hBrush = CreateSolidBrush(RGB(255, 0, 180));
+				oldBrush = (HBRUSH)SelectObject(hMemDC, hBrush);
+				Rectangle(hMemDC, crt.right - 110, 10, crt.right - 110 + ((float)gauge/max)*300 - 200, 40);
+				DeleteObject(SelectObject(hMemDC, oldBrush));
+			}
 		}
 		break;
 	case STATE::GAMEOVER:
@@ -196,7 +238,95 @@ void GameManager::EventHandling()
 }
 void GameManager::CollisionCheck()
 {
-	/* need solution */
+	// player 20 ball line blade half20 missile 10
+	for (Object* o : objectList)
+	{
+		if (o->GetID() / 100 == 10 || o->GetID() / 100 == 13)
+		{
+			short _oID = o->GetID();
+			for (Object* t : objectList)
+			{
+				short _tID = t->GetID();
+				if (_tID == _oID)
+					continue;
+				if (_oID / 100 == 10 && _tID / 100 == 21)
+				{
+					if (IsCrash(o->pos, 20, t->pos, 20, t->dir))
+					{
+						//충돌
+						LocalToEventManager(new Event(41, _oID, 0, 0, 0, _tID));
+						SendEventToNetwork(new Event(41, _oID + 1000, 0, 0, 0, _tID - 1000));
+					}
+				}
+				else if (_tID / 100 == 22)
+				{
+					if (!((Ball*)t)->IsAct())
+						continue;
+					if (IsCrash(o->pos, _oID == 1001? 20:10, t->pos, ((Ball*)t)->GetEndPoint()))
+					{
+						//충돌
+						LocalToEventManager(new Event(41, _oID, 0, 0, 0, _tID));
+						SendEventToNetwork(new Event(41, _oID + 1000, 0, 0, 0, _tID - 1000));
+					}
+				}
+			}
+			for (Object* t : netObjectList)
+			{
+				short _tID = t->GetID();
+				if (_tID / 100 == 23)
+				{
+					if (IsCrash(o->pos, _oID == 1001 ? 20 : 10, t->pos, 10))
+					{
+						//충돌
+						LocalToEventManager(new Event(41, _oID, 0, 0, 0, _tID));
+						SendEventToNetwork(new Event(41, _oID + 1000, 0, 0, 0, _tID - 1000));
+					}
+				}
+			}
+		}
+	}
+	for (Object* o : netObjectList)
+	{
+		if (o->GetID() / 100 == 20 || o->GetID() / 100 == 23)
+		{
+			short _oID = o->GetID();
+			for (Object* t : objectList)
+			{
+				short _tID = t->GetID();
+				if (_tID == _oID)
+					continue;
+				if (_oID / 100 == 20 && _tID / 100 == 11)
+				{
+					if (IsCrash(o->pos, 20, t->pos, 20, t->dir))
+					{
+						//충돌
+						LocalToEventManager(new Event(41, _oID, 0, 0, 0, _tID));
+						SendEventToNetwork(new Event(41, _oID - 1000, 0, 0, 0, _tID + 1000));
+					}
+				}
+				else if (_tID / 100 == 12)
+				{
+					if (!((Ball*)t)->IsAct())
+						continue;
+					if (IsCrash(o->pos, _oID == 2001 ? 20 : 10, t->pos, ((Ball*)t)->GetEndPoint()))
+					{
+						//충돌
+						LocalToEventManager(new Event(41, _oID, 0, 0, 0, _tID));
+						SendEventToNetwork(new Event(41, _oID - 1000, 0, 0, 0, _tID + 1000));
+					}
+				}
+				else if (_tID / 100 == 13)
+				{
+					if (IsCrash(o->pos, _oID == 2001 ? 20 : 10, t->pos, 10))
+					{
+						//충돌
+						LocalToEventManager(new Event(41, _oID, 0, 0, 0, _tID));
+						SendEventToNetwork(new Event(41, _oID - 1000, 0, 0, 0, _tID + 1000));
+					}
+				}
+			}
+		}
+	}
 }
 void GameManager::LocalToEventManager(Event* pEvt)
 {
@@ -402,6 +532,13 @@ Player* GameManager::GetPlayer()
 {
 	return myPlayer;
 }
+Object* GameManager::GetOpponent()
+{
+	Object* op = netObjectList.front();
+	if(op->GetID() == 2001)
+		return netObjectList.front();
+	return nullptr;
+}
 void GameManager::SetGame()
 {
 	if (!isAlreadySet)
@@ -575,7 +712,7 @@ void GameManager::DeleteDeadObject()
 			//될거같은데 혹시 몰라서
 			//Debug모드는 포인터값을 알아서 바꿔버리는 경우가 있다.(객체 사라질때)
 			//delete *it;
-			//objectList.remove(*it);
+			//objectList.remove(*it);	//안된다
 			Object* obj = *it;
 			auto iter = it;
 			--it;
@@ -593,7 +730,7 @@ void GameManager::DeleteDeadObject()
 			Object* obj = *it;
 			auto iter = it;
 			--it;
-			netObjectList.remove(*it);
+			netObjectList.remove(*iter);
 			delete obj;
 		}
 	}
@@ -642,5 +779,47 @@ void GameManager::SetDir(short pX, short pY)
 	if (myPlayer == nullptr)
 		return;
 	myPlayer->SetLookPoint(Vector2D(pX, pY));
+}
+bool GameManager::IsCrash(Vector2D myPos, short mySize, Vector2D targetPos, short targetSize)
+{
+	return myPos.Distance(targetPos) < mySize + targetSize;
+}
+bool GameManager::IsCrash(Vector2D myPos, short mySize, Vector2D startPoint, Vector2D endPoint)
+{
+	if (endPoint.x == startPoint.x)
+	{
+		//return myPos.y - startPoint.y;
+		//이래저래
+		return false;
+	}
+	if (endPoint.y == startPoint.y)
+	{
+		//어쩌구 저쩌구
+		return false;
+	}
+	double lean = (endPoint.y - startPoint.y) / (endPoint.x - startPoint.x);
+	double b = (-lean * startPoint.x) + startPoint.y;
+	double c = (myPos.x * 1 / lean) + myPos.y;
+
+	double x = b - c;
+	double y = (b / -lean) + (-lean * c);
+	x *= (-lean / (lean * lean + 1));
+	y *= (-lean / (lean * lean + 1));
+
+	if (startPoint.x <= x && endPoint.x >= x)
+		return IsCrash(myPos, mySize, Vector2D((float)x, (float)y), 0);
+	if (startPoint.x >= x && endPoint.x <= x)
+		return IsCrash(myPos, mySize, Vector2D((float)x, (float)y), 0);
+	return false;
+}
+bool GameManager::IsCrash(Vector2D myPos, short mySize, Vector2D targetPos, short targetSize, short targetDir)
+{
+	if (IsCrash(myPos, mySize, targetPos, targetSize))
+	{
+		//myPos.Direction(targetPos);
+		return true;
+	}
+	else
+		return false;
 }
 GameManager* GameManager::instance;

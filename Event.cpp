@@ -29,8 +29,12 @@ Object* Event::EventProcess()
 		break;
 	case 11:
 		//내 칼
-		if(gm->state == STATE::GAMING)
+		if (gm->state == STATE::GAMING)
+		{
 			obj = new Blade(id, Vector2D(posX, posY), dir);
+			gm->GetPlayer()->BladeDelay();
+			gm->GetPlayer()->GaugeStop();
+		}
 		break;
 	case 12:
 		//내 공
@@ -40,7 +44,7 @@ Object* Event::EventProcess()
 	case 13:
 		//내 포
 		if (gm->state == STATE::GAMING)
-			obj = new Missile(id, Vector2D(posX, posY), dir);
+			obj = new Missile(id, Vector2D(posX, posY), dir, gm->GetOpponent());
 		break;
 	case 20:
 		//상대
@@ -60,12 +64,16 @@ Object* Event::EventProcess()
 	case 23:
 		//상대 포
 		if (gm->state == STATE::GAMING)
-			obj = new Missile(id, Vector2D(posX, posY), dir);
+			obj = new Missile(id, Vector2D(posX, posY), dir, nullptr);
 		break;
 	case 31:
 		//상대 오브젝트 위치
 		if (gm->state == STATE::GAMING)
+		{
 			gm->SetPosition(id, posX, posY, dir);
+			if (id == 2001)
+				((Player*)gm->GetOpponent())->SetGauge(tmpVar);
+		}
 		break;
 	case 41:
 		//충돌
