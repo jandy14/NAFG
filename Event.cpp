@@ -20,6 +20,7 @@ Object* Event::EventProcess()
 			gm->GameStart();
 		break;
 	case 02:
+		if(gm->state == STATE::GAMING || gm->state == STATE::GAMEOVER)
 		gm->GameOver((id == 1) ? true : false);
 		break;
 	case 10:

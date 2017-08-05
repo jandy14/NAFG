@@ -786,38 +786,68 @@ bool GameManager::IsCrash(Vector2D myPos, short mySize, Vector2D targetPos, shor
 }
 bool GameManager::IsCrash(Vector2D myPos, short mySize, Vector2D startPoint, Vector2D endPoint)
 {
+	if (IsCrash(myPos, mySize, startPoint, 0))
+		return true;
+	if (IsCrash(myPos, mySize, endPoint, 0))
+		return true;
+
+	double x;
+	double y;
+
 	if (endPoint.x == startPoint.x)
 	{
-		//return myPos.y - startPoint.y;
-		//捞贰历贰
-		return false;
+		x = startPoint.x;
+		y = myPos.y;
+
+		double smallY = startPoint.y < endPoint.y ? startPoint.y : endPoint.y;
+		double bigY = startPoint.y >= endPoint.y ? startPoint.y : endPoint.y;
+		if (!(y > smallY && y < bigY))
+			return false;
 	}
-	if (endPoint.y == startPoint.y)
+	else if (endPoint.y == startPoint.y)
 	{
-		//绢录备 历录备
-		return false;
+		x = myPos.x;
+		y = startPoint.y;
+
+		double smallX = startPoint.x < endPoint.x ? startPoint.x : endPoint.y;
+		double bigX = startPoint.x >= endPoint.x ? startPoint.x : endPoint.y;
+		if (!(x > smallX && x < bigX))
+			return false;
 	}
-	double lean = (endPoint.y - startPoint.y) / (endPoint.x - startPoint.x);
-	double b = (-lean * startPoint.x) + startPoint.y;
-	double c = (myPos.x * 1 / lean) + myPos.y;
+	else
+	{
+		double lean = (endPoint.y - startPoint.y) / (endPoint.x - startPoint.x);
+		double b = (-lean * startPoint.x) + startPoint.y;
+		double c = (myPos.x * 1 / lean) + myPos.y;
 
-	double x = b - c;
-	double y = (b / -lean) + (-lean * c);
-	x *= (-lean / (lean * lean + 1));
-	y *= (-lean / (lean * lean + 1));
+		x = b - c;
+		y = (b / -lean) + (-lean * c);
+		x *= (-lean / (lean * lean + 1));
+		y *= (-lean / (lean * lean + 1));
 
-	if (startPoint.x <= x && endPoint.x >= x)
-		return IsCrash(myPos, mySize, Vector2D((float)x, (float)y), 0);
-	if (startPoint.x >= x && endPoint.x <= x)
-		return IsCrash(myPos, mySize, Vector2D((float)x, (float)y), 0);
-	return false;
+		double smallX = startPoint.x < endPoint.x ? startPoint.x : endPoint.x;
+		double bigX = startPoint.x >= endPoint.x ? startPoint.x : endPoint.x;
+		if (!(x > smallX && x < bigX))
+			return false;
+	}
+	return IsCrash(myPos, mySize, Vector2D((float)x, (float)y), 0);
 }
 bool GameManager::IsCrash(Vector2D myPos, short mySize, Vector2D targetPos, short targetSize, short targetDir)
 {
 	if (IsCrash(myPos, mySize, targetPos, targetSize))
 	{
-		//myPos.Direction(targetPos);
-		return true;
+		short dir = targetPos.Direction(myPos);
+		dir = dir < 0 ? dir + 360 : dir;
+		targetDir = targetDir < 0 ? targetDir + 360 : targetDir;
+		short diff = dir - targetDir;
+
+		for (; diff > 180; diff -= 360);
+		for (; diff < -180; diff += 360);
+		
+		if (diff <= 90)
+			return true;
+		else
+			return IsCrash(myPos, mySize, targetPos, targetSize - targetSize*((diff - 90) / 90));
 	}
 	else
 		return false;
