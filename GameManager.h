@@ -32,6 +32,7 @@ enum class STATE
 	GAMESTART,
 	GAMING,
 	GAMEOVER,
+	FINISH,
 	END
 };
 class GameManager

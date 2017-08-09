@@ -69,6 +69,7 @@ void NetworkManager::ConnectFunc()
 	t.detach();
 
 	GameManager::GetInstance()->state = STATE::SETTING;
+	return;
 }
 void NetworkManager::ReceiveFunc()
 {
@@ -82,6 +83,11 @@ void NetworkManager::ReceiveFunc()
 		
 		gm->NetworkToEventManager(evt);
 	}
+	shutdown(hClntSock, 1); //write shut down;
+
+	gm->state = STATE::FINISH;
+
+	return;
 }
 void NetworkManager::StartThread()
 {

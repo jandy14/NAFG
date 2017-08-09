@@ -230,7 +230,8 @@ void GameManager::Draw()
 }
 void GameManager::KeyEvent(unsigned int pValue, bool pIsKeyDown)
 {
-	inputManager->KeyEvent(pValue, pIsKeyDown);
+	if(myPlayer != nullptr)
+		inputManager->KeyEvent(pValue, pIsKeyDown);
 }
 void GameManager::EventHandling()
 {
@@ -351,8 +352,9 @@ GameManager::~GameManager()
 	delete inputManager;
 	delete evtManager;
 
-	delete evtMutex;
 	ResetObjectList();
+
+	delete evtMutex;
 }
 short GameManager::FindMinValue(short pType)
 {

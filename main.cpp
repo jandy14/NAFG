@@ -3,7 +3,7 @@
 #include "resource.h"
 #include "GameManager.h"
 #include "Event.h"
-BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;
 LPCTSTR lpszClass = TEXT("NAFG");
@@ -113,6 +113,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 			gm->EventHandling();
 			gm->Draw();
 		}
+		else if (gm->state == STATE::FINISH)
+		{
+			//루프 탈출
+			break;
+		}
 		/*  프레임 유지  */
 		elapsedTime += timeGetTime() - startTime;
 		if ((1000 / FPS) > elapsedTime)
@@ -123,12 +128,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 		else //Frame Skipping
 			elapsedTime -= (1000 / FPS);
 	}
-
+	delete gm;
 	return (int)Message.wParam;
 }
 
 
-BOOL CALLBACK DlgProc(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
 	switch (iMessage)
 	{
@@ -167,7 +172,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 		//GameManager Init
-		gm->Initailize(hWnd);//게임매니저 생성및 초기화
+		gm->Initailize(hWnd);//게임매니저 생성및 초기화 and
 							 //인풋값 설정, 이벤트 리스트 초기화
 		return 0;
 	case WM_KEYDOWN:
@@ -208,6 +213,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		EndPaint(hWnd, &ps);
 		return 0;
 	case WM_DESTROY:
+		gm->state = STATE::FINISH;
 		PostQuitMessage(0);
 		return 0;
 	}
