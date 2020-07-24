@@ -4,6 +4,9 @@
 
 https://drive.google.com/open?id=1tSI42D3585qAimDeeYjZKzljkDS49eSw
 
+시연 동영상================================
+
+https://drive.google.com/file/d/1HaY-aL2YNPetVBk-4blVl87KUx_HpSbd/view?usp=sharing
 
 게임 설명==================================
 
